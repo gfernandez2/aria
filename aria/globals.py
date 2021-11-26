@@ -172,7 +172,7 @@ MOVES = {
     'bastion'   : {'cooldown' : 200,'chance' : 95, 'type' : 'physical'},
 
     'jab'       : {'cooldown' : 15, 'chance' : 60, 'type' : 'physical'},
-    'claw'      : {'cooldown' : 20, 'chance' : 80, 'type' : 'physical'},
+    'claw'      : {'cooldown' : 20, 'chance' : 10, 'type' : 'physical'},
     'bounce'    : {'cooldown' : 18, 'chance' : 65, 'type' : 'physical'},
     'club'      : {'cooldown' : 15, 'chance' : 40, 'type' : 'physical'},
     'crush'     : {'cooldown' : 18, 'chance' : 50, 'type' : 'physical'},
@@ -191,4 +191,4 @@ MOVES = {
 # Equipment characteristics goes here
 
 # Game globals
-DUNGEON_SIZE = 21
+DUNGEON_SIZE = 11

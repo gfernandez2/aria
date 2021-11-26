@@ -3,6 +3,7 @@
 
 import json
 import random
+import time
 
 import globals as G
 
@@ -27,6 +28,11 @@ class player:
             self.pd['stats'] = class_info['base']
             # 3 bonus stat rolls for variation
             self.stat_roll(3)
+
+            # moves map mov to time last used (for cooldown check)
+            self.pd['moves'] = dict()
+            for move in class_info['moves']:
+                self.pd['moves'][move] = 0
 
             # initialize current health
             self.pd['health'] = self.pd['stats'][0]
@@ -90,12 +96,22 @@ class player:
         elif move['type'] == 'magic':
             dmg = max(0, dmg - mod_stats[4]) # subtract res
 
-        hit = random.choices([True, False], weights=[chance, 100-chance])
+        hit = random.choices([True, False], weights=[chance, 100-chance])[0]
         
         if hit:
             self.pd['health'] = max(0, self.pd['health'] - dmg)
 
         return hit, dmg
+    
+    # attemps to use move in player's moveset
+    # returns if cooldown check passes - implementation of move is in game.py
+    def move(self, move):
+        curr = time.time()
+        if curr - self.pd['moves'][move] > G.MOVES[move]['cooldown']:
+            self.pd['moves'][move] = curr
+            return True
+
+        return False
 
 
     def dump(self):
