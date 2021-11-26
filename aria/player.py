@@ -73,7 +73,7 @@ class player:
                 self.pd['stats'][i] += incr
     
     # inflict damage on player
-    # returns if hit landed or not
+    # returns if hit landed or not, and dmg inflicted
     def damage(self, move, dmg):
         # get move info
         move = G.MOVES[move]
@@ -86,16 +86,16 @@ class player:
         mod_stats = [sum(i) for i in zip(self.pd['stats'], self.pd['mods'])]
 
         if move['type'] == 'physical':
-            dmg -= mod_stats[2] # subtract def
+            dmg = max(0, dmg - mod_stats[2]) # subtract def
         elif move['type'] == 'magic':
-            dmg -= mod_stats[4] # subtract res
+            dmg = max(0, dmg - mod_stats[4]) # subtract res
 
         hit = random.choices([True, False], weights=[chance, 100-chance])
         
         if hit:
             self.pd['health'] = max(0, self.pd['health'] - dmg)
 
-        return hit
+        return hit, dmg
 
 
     def dump(self):

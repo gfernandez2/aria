@@ -15,6 +15,7 @@ class entity:
         # initialize player data
         self.ed = dict()
         self.ed['defeated'] = False
+        self.ed['class'] = etype
             
         # get class info
         ent_info = G.ENEMIES[etype]
@@ -34,10 +35,10 @@ class entity:
     # initiaite stat up k times, depending on class stat spread probability
     def stat_roll(self, k):
         # get stat spread
-        stat_spread = G.CLASSES[self.ed['class']]['spread']
+        stat_spread = G.ENEMIES[self.ed['class']]['spread']
         # k times, each stat has chance to incr by 1 based on stat spread
         for _ in range(k):
-            for i in range(len(self.pd['stats'])):
+            for i in range(len(self.ed['stats'])):
                 chance = stat_spread[i]
                 incr = random.choices([1, 0], weights=[100, 100-chance])[0]
                 self.ed['stats'][i] += incr
@@ -56,9 +57,9 @@ class entity:
         mod_stats = [sum(i) for i in zip(self.ed['stats'], self.ed['mods'])]
 
         if move['type'] == 'physical':
-            dmg -= mod_stats[2] # subtract def
+            dmg = max(0, dmg - mod_stats[2]) # subtract def
         elif move['type'] == 'magic':
-            dmg -= mod_stats[4] # subtract res
+            dmg = max(0, dmg - mod_stats[4]) # subtract res
 
         hit = random.choices([True, False], weights=[chance, 100-chance])
         
@@ -69,6 +70,6 @@ class entity:
 
 
     def dump(self):
-        print(self.pd)
+        print(self.ed)
 
 

@@ -11,7 +11,7 @@ def main():
     p1.xp_incr(1000)
     print("Player info:")
     p1.dump()
-    print("Inflict damage on player using move=claw")
+    print("Inflict damage=20 on player using move=claw")
     p1.damage('claw', 20)
     print("Player info:")
     p1.dump()
