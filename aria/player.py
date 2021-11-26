@@ -89,7 +89,7 @@ class player:
         chance = int(move['chance'] * (1 - (self.pd['stats'][5]/100) ))
 
         # apply modifications to stats
-        mod_stats = [sum(i) for i in zip(self.pd['stats'], self.pd['mods'])]
+        mod_stats = [sum(max(0, i)) for i in zip(self.pd['stats'], self.pd['mods'])]
 
         if move['type'] == 'physical':
             dmg = max(0, dmg - mod_stats[2]) # subtract def

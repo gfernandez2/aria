@@ -57,8 +57,10 @@ CLASSES = {
 
 # Enemy descriptions
 # Similar structure to classes
-# When enemy is generated, random name + title (for higher level enemeis) is chosen from list
-# Yes, I used online generators for most of these
+# When enemy is generated, random name + title (for higher level enemies) is chosen from list
+# Yes, I used online generators for most of the names
+# rate isn't the percent chance of spawning but contributing weight when enemies are 
+# selected randomly from a pool - and this pool changes depending on the room difficulty
 ENEMIES = {
     'goblin' : {
         'name' : ['Glilx', 'Clokx', 'Vriosb', 'Vrylx', 'Xos', 'Tonrolx', 'Slialkits', 'Haastuizz'
@@ -71,6 +73,7 @@ ENEMIES = {
         'base'   : [60, 8, 10, 8, 10, 6],
         'spread' : [90, 30, 10, 20, 25, 7],
         'moves'  : ['jab', 'claw']
+        'rate'   : 35
     },
     'slime' : {
         'name' : ['Niall', 'Ralph', 'Frederick', 'Fraser', 'Troy', 'Zakariya', 'Fred', 'Herman',
@@ -83,6 +86,7 @@ ENEMIES = {
         'base'   : [90, 5, 5, 5, 5, 2],
         'spread' : [85, 10, 10, 10, 10, 5],
         'moves'  : ['bounce']
+        'rate'   : 60
     },
     'troll' : {
         'name' : ['Ttarmek', 'Tedar', 'Jaafan', 'Venjo', 'Mohanlal', 'Maalik', 'Javyn', 'Haijen',
@@ -94,6 +98,7 @@ ENEMIES = {
         'base'   : [120, 20, 18, 15, 10, 2],
         'spread' : [90, 50, 50, 35, 35, 5],
         'moves'  : ['club', 'stomp']
+        'rate'   : 140
     },
     'golem' : {
         'name' : ['Ghuhk', 'Rhahm', 'Grad', 'Groc', 'Dhaud', 'Abradan', 'Evnan', 'Giyim', 'Letai',
@@ -106,6 +111,7 @@ ENEMIES = {
         'base'   : [150, 20, 30, 15, 10, 2],
         'spread' : [40, 50, 100, 35, 35, 5],
         'moves'  : ['crush', 'growl']
+        'rate'   : 100
     },
     'orc' : {
         'name' : ['Ughat', 'Yambagorn', 'Clog', 'Omogulg', 'Orpigig', 'Gomoku', 'Supgugh', 'Kugbu',
@@ -118,6 +124,7 @@ ENEMIES = {
         'base'   : [130, 20, 30, 15, 10, 2],
         'spread' : [40, 50, 50, 20, 20, 5],
         'moves'  : ['club', 'growl']
+        'rate'   : 140
     },
     'ghoul' : {
         'name' : ['Tharrius', 'Hinarus', 'Neuldeas', 'Rosaumas', 'Vinion', 'Rivonos', 'Chrones',
@@ -130,6 +137,7 @@ ENEMIES = {
         'base'   : [200, 30, 30, 50, 50, 20],
         'spread' : [90, 45, 45, 50, 50, 15],
         'moves'  : ['phase', 'strangle', 'spook']
+        'rate'   : 350
     },
     'lich' : {
         'name' : ['Nourra', 'Zhok\'vux', 'Sakduag', 'Skolidh', 'Psam\'zokar', 'Qukdeghux', 'Auskaen',
@@ -141,6 +149,7 @@ ENEMIES = {
         'base'   : [200, 20, 30, 15, 10, 2],
         'spread' : [90, 50, 50, 20, 20, 5],
         'moves'  : ['darkblast', 'corrupt', 'maelstrom']
+        'rate'   : 350
     },
     'demon_king' : {
         'name' : ['Bozzamach', 'Toth\'toch', 'Oth\'tenor', 'Brulgromud', 'Ustren', 'Dozgarech',
@@ -150,7 +159,8 @@ ENEMIES = {
         'difficulty' : 4,
         'base'   : [500, 50, 50, 50, 50, 10],
         'spread' : [50, 50, 50, 50, 50, 50],
-        'moves' : ['Vairocana']
+        'moves'  : ['Vairocana']
+        'rate'   : 5000
     }
 }
 
@@ -158,34 +168,34 @@ ENEMIES = {
 # Includes player and enemy moves
 # Cooldown (s) and % chance of success
 MOVES = {
-    'strike'    : {'cooldown' : 3,  'chance' : 95, 'type' : 'physical'},
-    'guard'     : {'cooldown' : 15, 'chance' : 45, 'type' : 'status'},
-    'multislash': {'cooldown' : 180,'chance' : 85, 'type' : 'physical'},
-    'blast'     : {'cooldown' : 3,  'chance' : 95, 'type' : 'magic'},
-    'miasma'    : {'cooldown' : 60, 'chance' : 45, 'type' : 'status'},
-    'manastorm' : {'cooldown' : 150,'chance' : 80, 'type' : 'magic'},
-    'heal'      : {'cooldown' : 8,  'chance' : 95, 'type' : 'status'},
-    'enhance'   : {'cooldown' : 15, 'chance' : 45, 'type' : 'status'},
-    'refresh'   : {'cooldown' : 120,'chance' : 100, 'type' : 'status'},
-    'bash'      : {'cooldown' : 5,  'chance' : 80, 'type' : 'physical'},
-    'shield'    : {'cooldown' : 45, 'chance' : 65, 'type' : 'status'},
-    'bastion'   : {'cooldown' : 200,'chance' : 95, 'type' : 'physical'},
+    'strike'    : {'cooldown' : 3,  'chance' : 95, 'type' : 'physical', 'target' : 'single'},
+    'guard'     : {'cooldown' : 15, 'chance' : 45, 'type' : 'status',   'target' : 'single'},
+    'multislash': {'cooldown' : 180,'chance' : 85, 'type' : 'physical', 'target' : 'all'},
+    'blast'     : {'cooldown' : 3,  'chance' : 95, 'type' : 'magic',    'target' : 'single'},
+    'miasma'    : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'all'},
+    'manastorm' : {'cooldown' : 150,'chance' : 80, 'type' : 'magic',    'target' : 'all'},
+    'heal'      : {'cooldown' : 8,  'chance' : 95, 'type' : 'status',   'target' : 'single'},
+    'enhance'   : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'single'},
+    'refresh'   : {'cooldown' : 120,'chance' : 100,'type' : 'status',   'target' : 'all'},
+    'bash'      : {'cooldown' : 5,  'chance' : 80, 'type' : 'physical', 'target' : 'single'},
+    'shield'    : {'cooldown' : 45, 'chance' : 65, 'type' : 'status',   'target' : 'single'},
+    'bastion'   : {'cooldown' : 200,'chance' : 95, 'type' : 'physical', 'target' : 'all'},
 
-    'jab'       : {'cooldown' : 15, 'chance' : 60, 'type' : 'physical'},
-    'claw'      : {'cooldown' : 20, 'chance' : 80, 'type' : 'physical'},
-    'bounce'    : {'cooldown' : 18, 'chance' : 65, 'type' : 'physical'},
-    'club'      : {'cooldown' : 15, 'chance' : 40, 'type' : 'physical'},
-    'crush'     : {'cooldown' : 18, 'chance' : 50, 'type' : 'physical'},
-    'stomp'     : {'cooldown' : 25, 'chance' : 70, 'type' : 'physical'},
-    'growl'     : {'cooldown' : 30, 'chance' : 95, 'type' : 'status'},
-    'phase'     : {'cooldown' : 20, 'chance' : 65, 'type' : 'magic'},
-    'strangle'  : {'cooldown' : 25, 'chance' : 80, 'type' : 'physical'},
-    'spook'     : {'cooldown' : 40, 'chance' : 95, 'type' : 'status'},
-    'darkblast' : {'cooldown' : 15, 'chance' : 65, 'type' : 'magic'},
-    'corrupt'   : {'cooldown' : 30, 'chance' : 80, 'type' : 'status'},
-    'maelstrom' : {'cooldown' : 200,'chance' : 55, 'type' : 'magic'},
+    'jab'       : {'cooldown' : 15, 'chance' : 60, 'type' : 'physical', 'target' : 'single'},
+    'claw'      : {'cooldown' : 20, 'chance' : 80, 'type' : 'physical', 'target' : 'single'},
+    'bounce'    : {'cooldown' : 18, 'chance' : 65, 'type' : 'physical', 'target' : 'single'},
+    'club'      : {'cooldown' : 15, 'chance' : 40, 'type' : 'physical', 'target' : 'single'},
+    'crush'     : {'cooldown' : 18, 'chance' : 50, 'type' : 'physical', 'target' : 'single'},
+    'stomp'     : {'cooldown' : 25, 'chance' : 70, 'type' : 'physical', 'target' : 'all'},
+    'growl'     : {'cooldown' : 30, 'chance' : 95, 'type' : 'status',   'target' : 'all'},
+    'phase'     : {'cooldown' : 20, 'chance' : 65, 'type' : 'magic',    'target' : 'single'},
+    'strangle'  : {'cooldown' : 25, 'chance' : 80, 'type' : 'physical', 'target' : 'single'},
+    'spook'     : {'cooldown' : 40, 'chance' : 95, 'type' : 'status',   'target' : 'all'},
+    'darkblast' : {'cooldown' : 15, 'chance' : 65, 'type' : 'magic',    'target' : 'single'},
+    'corrupt'   : {'cooldown' : 30, 'chance' : 80, 'type' : 'status',   'target' : 'all'},
+    'maelstrom' : {'cooldown' : 200,'chance' : 55, 'type' : 'magic',    'target' : 'all'},
 
-    'Vairocana' : {'cooldown' : 30, 'chance' : 75, 'type' : 'magic'}
+    'Vairocana' : {'cooldown' : 30, 'chance' : 75, 'type' : 'magic',    'target' : 'all'}
 }
 
 # Equipment characteristics goes here
