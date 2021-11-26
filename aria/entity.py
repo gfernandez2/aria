@@ -66,7 +66,7 @@ class entity:
         if hit:
             self.ed['health'] = max(0, self.ed['health'] - dmg)
 
-        return hit
+        return hit, dmg
 
 
     def dump(self):

@@ -12,7 +12,11 @@ def main():
     print("Player info:")
     p1.dump()
     print("Inflict damage=20 on player using move=claw")
-    p1.damage('claw', 20)
+    hit, dmg = p1.damage('claw', 20)
+    if hit:
+        print(f"Dealt {dmg} damage to player")
+    else:
+        print("Attack missed")
     print("Player info:")
     p1.dump()
 
