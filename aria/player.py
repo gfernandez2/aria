@@ -54,7 +54,7 @@ class player:
         prev_lvl = self.pd['level']
         for level in sorted(G.LEVEL_THRESHOLDS.keys()):
             # level up
-            if self.pd['xp'] < G.LEVEL_THRESHOLDS[level]:
+            if self.pd['xp'] < G.LEVEL_THRESHOLDS[level] and level != prev_lvl:
                 print(f"Player {self.pd['name']} has reached level {level}")
                 self.pd['level'] = level
                 # get current health ratio
