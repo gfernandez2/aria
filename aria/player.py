@@ -29,7 +29,7 @@ class player:
             # 3 bonus stat rolls for variation
             self.stat_roll(3)
 
-            # moves map mov to time last used (for cooldown check)
+            # map move to time last used (for cooldown check)
             self.pd['moves'] = dict()
             for move in class_info['moves']:
                 self.pd['moves'][move] = 0
@@ -48,6 +48,13 @@ class player:
             self.pd['items'] = {'potions' : 2}
             self.pd['weapon'] = None
 
+    def get_health(self):
+        return self.pd['health']
+
+    # returns current stats (with mods applied)
+    def get_stats(self):
+        return [max(0, sum(i)) for i in zip(self.pd['stats'], self.pd['mods'])]
+
     # increment player xp by n
     def xp_incr(self, n):
         self.pd['xp'] += n
@@ -56,18 +63,22 @@ class player:
     # sets level according to player xp
     def level_check(self):
         prev_lvl = self.pd['level']
+        new_lvl = prev_lvl
         for level in sorted(G.LEVEL_THRESHOLDS.keys()):
             # level up
-            if self.pd['xp'] < G.LEVEL_THRESHOLDS[level] and level != prev_lvl:
-                print(f"Player {self.pd['name']} has reached level {level}")
-                self.pd['level'] = level
-                # get current health ratio
-                hp_scale = self.pd['health']/self.pd['stats'][0]
-                # stat roll for each level gained
-                self.stat_roll(level - prev_lvl)
-                # scale health
-                self.pd['health'] = int(hp_scale * self.pd['stats'][0])
-                return True
+            if self.pd['xp'] > G.LEVEL_THRESHOLDS[level]:
+                new_lvl = level
+
+        if new_lvl != prev_lvl:
+            print(f"Player {self.pd['name']} has reached level {new_lvl}")
+            self.pd['level'] = new_lvl
+            # get current health ratio
+            hp_scale = self.pd['health']/self.pd['stats'][0]
+            # stat roll for each level gained
+            self.stat_roll(new_lvl - prev_lvl)
+            # scale health
+            self.pd['health'] = int(hp_scale * self.pd['stats'][0])
+            return True
 
         return False
 
@@ -91,7 +102,7 @@ class player:
         
         # get chance hit lands
         # speed of player decreases this chance (percentage)
-        chance = int(move_info['chance'] * (1 - (self.pd['stats'][5]/100) ))
+        chance = int(move_info['chance'] * max(0.5, (1 - (self.pd['stats'][5]/100))))
 
         # determine if hit lands
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
@@ -99,8 +110,8 @@ class player:
         if not hit:
             return hit, 0
 
-        # apply modifications to stats
-        mod_stats = [max(0, sum(i)) for i in zip(self.pd['stats'], self.pd['mods'])]
+        # get status with mods applied         
+        mod_stats = self.get_stats()
 
         if move_info['type'] == 'physical':
             dmg = max(0, dmg - mod_stats[2]) # subtract def
@@ -120,7 +131,7 @@ class player:
         
         # get chance hit lands
         # speed of player decreases this chance (percentage)
-        chance = int(move_info['chance'] * (1 - (self.pd['stats'][5]/100) ))
+        chance = int(move_info['chance'] * max(0.5, (1 - (self.pd['stats'][5]/100))))
 
         # determine if move succeeds
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
@@ -161,17 +172,41 @@ class player:
 
         return heal_amt
     
-    # attemps to use move in player's moveset
-    # returns if cooldown check passes - implementation of move is in game.py
-    def check_cooldown(self, move):
-        curr = time.time()
-        if curr - self.pd['moves'][move] > G.MOVES[move]['cooldown']:
-            self.pd['moves'][move] = curr
-            return True
+    # check if move can be performed
+    # returns if check passes
+    def move_check(self, move):
+        # check if player can use move
+        if move not in G.CLASSES[self.pd['class']]['moves']:
+            return False
 
-        return False
+        # cooldown check
+        curr = time.time()
+        if curr - self.pd['moves'][move] < G.MOVES[move]['cooldown']:
+            return False
+
+        self.pd['moves'][move] = curr
+        return True
+
+    # looks at all currently active status effects
+    # if duration is passed, status is removed and effects are reversed
+    def status_check(self):
+        curr = time.time()
+        remove_list = []
+        for status, info in self.pd['status'].items():
+            # if duration is up
+            if curr - info['time'] > G.MOVES[status]['duration']:
+                # apply reversal to stat mods
+                self.pd['mods'] = [sum(i) for i in zip(info['reverse'], self.pd['mods'])]
+                # mark status for removal from dictionary
+                remove_list.append(status)
+
+        # remove status effects marked for removal
+        for status in remove_list:
+            del self.pd['status'][status]
 
     def dump(self):
         print(self.pd)
 
-
+    def __repr__(self):
+        string = json.dumps(self.pd)
+        return string

@@ -17,7 +17,7 @@ def main():
     e.dump()
 
     print('Attempt to use move=Vairocana')
-    move = e.check_cooldown('Vairocana')
+    move = e.move_check('Vairocana')
     if move:
         print('Move success')
     else:
@@ -26,8 +26,8 @@ def main():
     print('Entity info:')
     e.dump()
 
-    print('Attempt to use move=Vairocana')
-    move = e.check_cooldown('Vairocana')
+    print('Attempt to use move=strike')
+    move = e.move_check('strike')
     if move:
         print('Move success')
     else:

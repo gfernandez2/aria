@@ -42,6 +42,10 @@ class game:
         self.gd['players'][socket] = player(name, pclass)
         return True
 
+    # for now, only needed for testing
+    def get_players(self):
+        return self.gd['players']
+
     def generate_dungeon(self):
         for i in range(G.DUNGEON_SIZE):
             for j in range(G.DUNGEON_SIZE):
@@ -125,16 +129,85 @@ class game:
                     e = entity(chosen_enemy, self.gd['scale'])
                     self.gd['enemies'].append(e)
 
-    # attempts to execute move requested by socket
-    def move(self, socket, move):
+    # attempts to execute move
+    # requester - player or entity obj
+    # for now, single targets are chosen at random
+    def execute_move(self, move, requester):
+        # check if move can be executed
+        proceed = requester.move_check(move)
+        if not proceed:
+            print('Move failure')
+            return False
+
+        # unique handling of Vairocana - evokes random move from globals.py
+        if move == 'Vairocana':
+            while move == 'Vairocana':
+                move = random.choice(G.MOVES.keys())
+
+        # get move info
+        mi = G.MOVES[move]
+        targets = []
+        players = self.gd['players'].values()
+        enemies = self.gd['enemies']
+
+        # determine target
+        # self targets are only status-type moves
+        if mi['target'] == 'self':
+            return requester.apply_status(move)
+        elif mi['target'] == 'single':
+            if mi['side'] == 'player':
+                targets.append(random.choice(players))
+            elif mi['side'] == 'enemy':
+                targets.append(random.choice(enemies))
+        elif mi['target'] == 'all':
+            if mi['side'] == 'player':
+                targets = players
+            elif mi['side'] == 'enemy':
+                targets = enemies
+
+        # apply move onto target(s)
+        mtype = mi['type']
+        scale = mi['scale']
+        stats = requester.get_stats()
+        for target in targets:
+            if mtype == 'physical':
+                target.damage(move, int(stats[1] * (scale/100)))
+            elif mtype == 'magic':
+                target.damage(move, int(stats[3] * (scale/100)))
+            elif mtype == 'status':
+                target.apply_status(move)
+            elif mtype == 'heal':
+                target.heal(move)
+
+    # checks for enemies that are defeated
+    # removes defeated enemies and awards players xp
+    # xp calculated by:
+    # random int from [ (sum of enemy stats), (sum of enemy stats) * speed stat of player]
+    def check_enemies(self):
+        removal = []
+        # check for defeated enemies
+        for enemy in self.gd['enemies']:
+            #print('Test')
+            if enemy.get_health() == 0:
+                #print('Defeated enemy detected')
+                removal.append(enemy)
+                stat_sum = sum(enemy.get_base_stats())
+                # distribute xp reward
+                for player in self.gd['players'].values():
+                    pstats = player.get_stats()
+                    player.xp_incr(random.randint(stat_sum, stat_sum * pstats[5]))
+
+        # remove enemies
+        for enemy in removal:
+            self.gd['enemies'].remove(enemy)
 
     # check for defeated status     
     def check_defeat(self):
         for p in self.gd['players'].values():
-            if p['health'] > 0:
+            if p.get_health() > 0:
                 return False
 
         return True
 
     def dump(self):
-        print(self.gd)
+        return self.gd

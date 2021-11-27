@@ -3,21 +3,26 @@
 
 # Level xp thresholds
 LEVEL_THRESHOLDS = {
-    1  : 150,
-    2  : 300,
-    3  : 500,
-    4  : 800,
-    5  : 1300,
-    6  : 2000,
-    7  : 3100,
-    8  : 5000,
-    9  : 7000,
-    10 : 9500,
-    11 : 13000,
-    12 : 18000,
-    13 : 24000,
-    14 : 30000,
-    15 : 38000
+    1  : 50,
+    2  : 100,
+    3  : 200,
+    4  : 350,
+    5  : 550,
+    6  : 850,
+    7  : 1350,
+    8  : 2100,
+    9  : 3100,
+    10 : 4500,
+    11 : 6300,
+    12 : 8300,
+    13 : 10000,
+    14 : 12000,
+    15 : 15000,
+    16 : 19000,
+    17 : 25000,
+    18 : 33000,
+    19 : 45000,
+    20 : 50000
 }
 
 # Class specializations
@@ -36,7 +41,7 @@ CLASSES = {
     'knight' : {
         'base'   : [25, 12, 8, 5, 8, 5],
         'spread' : [65, 75, 60, 20, 20, 8],
-        'moves'  : ['strike', 'guard', 'trislash'],
+        'moves'  : ['strike', 'guard', 'multislash'],
     },
     'mage' : {
         'base'   : [20, 5, 8, 13, 12, 5],
@@ -46,7 +51,7 @@ CLASSES = {
     'healer' : {
         'base'   : [25, 3, 12, 3, 12, 8],
         'spread' : [90, 25, 25, 90, 95, 20],
-        'moves'  : ['heal' 'enhance', 'refresh'],
+        'moves'  : ['heal', 'enhance', 'refresh'],
     },
     'tank' : {
         'base'   : [30, 8, 12, 3, 8, 2],
@@ -159,7 +164,7 @@ ENEMIES = {
         'difficulty' : 4,
         'base'   : [500, 50, 50, 50, 50, 10],
         'spread' : [50, 50, 50, 50, 50, 50],
-        'moves'  : ['Vairocana'],
+        'moves'  : ['Nirvana', 'Vairocana'],
         'rate'   : 5000
     }
 }
@@ -210,6 +215,7 @@ MOVES = {
     'corrupt'   : {'cooldown' : 50, 'chance' : 80, 'type' : 'status',   'target' : 'all',    'side' : 'player','scale' : 50, 'duration' : 40, 'mod' : [0, 0, 0, -1, -1, 0]},
     'maelstrom' : {'cooldown' : 200,'chance' : 55, 'type' : 'magic',    'target' : 'all',    'side' : 'player','scale' : 180},
 
+    'Nirvana'   : {'cooldown' : 60, 'chance' : 90, 'type' : 'status',   'target' : 'self',   'side' : 'enemy', 'scale' : 50, 'duration' : 50, 'mod' : [1, 1, 1, 1, 1, 1]},
     'Vairocana' : {'cooldown' : 30, 'chance' : 75, 'type' : 'magic',    'target' : 'all',    'side' : 'player'}
 }
 

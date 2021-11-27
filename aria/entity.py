@@ -26,13 +26,13 @@ class entity:
         # bonus stat rolls
         self.stat_roll(scale*2)
 
-        # map move to time last used (for cooldown check)
+        # maps move to time last used (for cooldown check)
         self.ed['moves'] = dict()
         for move in ent_info['moves']:
             self.ed['moves'][move] = 0
 
-        # maps status effects to when they were first applied, as well as 
-        # mod list [0, 0, 0, 0, 0, 0] which is applied when status is reversed
+        # maps status effects (moves) to when they were most recently applied, as well as 
+        # mod list [n, n, n, n, n, n] which is applied when status is reversed
         self.ed['status'] = dict()
 
         # initialize current health
@@ -40,6 +40,17 @@ class entity:
 
         # status modifiers
         self.ed['mods'] = [0 for _ in range(len(self.ed['stats']))]
+
+    def get_health(self):
+        return self.ed['health']
+
+    # returns unmodified base stats
+    def get_base_stats(self):
+        return self.ed['stats']      
+
+    # returns current stats (with mods applied)
+    def get_stats(self):
+        return [max(0, sum(i)) for i in zip(self.ed['stats'], self.ed['mods'])]
 
     # initiaite stat up k times, depending on class stat spread probability
     def stat_roll(self, k):
@@ -69,8 +80,8 @@ class entity:
         if not hit:
             return hit, 0
 
-        # apply modifications to stats
-        mod_stats = [max(0, sum(i)) for i in zip(self.ed['stats'], self.ed['mods'])]
+        # get status with mods applied         
+        mod_stats = self.get_stats()
 
         if move_info['type'] == 'physical':
             dmg = max(0, dmg - mod_stats[2]) # subtract def
@@ -118,18 +129,24 @@ class entity:
         
         return hit
 
-    # attemps to use move in entity's moveset
-    # returns if cooldown check passes - implementation of move is in game.py
-    def check_cooldown(self, move):
+    # check if move can be performed
+    # returns if check passes
+    def move_check(self, move):
+        # check if entity can use move
+        if move not in G.ENEMIES[self.ed['class']]['moves']:
+            return False
+
+        # cooldown check
         curr = time.time()
-        if curr - self.ed['moves'][move] > G.MOVES[move]['cooldown']:
-            self.ed['moves'][move] = curr
-            return True
+        if curr - self.ed['moves'][move] < G.MOVES[move]['cooldown']:
+            return False
 
-        return False
-
+        self.ed['moves'][move] = curr
+        return True
 
     def dump(self):
         print(self.ed)
 
-
+    def __repr__(self):
+        string = json.dumps(self.ed)
+        return string
