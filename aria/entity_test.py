@@ -17,7 +17,7 @@ def main():
     e.dump()
 
     print('Attempt to use move=Vairocana')
-    move = e.move('Vairocana')
+    move = e.check_cooldown('Vairocana')
     if move:
         print('Move success')
     else:
@@ -27,11 +27,21 @@ def main():
     e.dump()
 
     print('Attempt to use move=Vairocana')
-    move = e.move('Vairocana')
+    move = e.check_cooldown('Vairocana')
     if move:
         print('Move success')
     else:
         print('Failed to perform move')
+
+    print('Applying status move=miasma')
+    success = e.apply_status('miasma')
+    if success:
+        print('Move success')
+    else:
+        print('Move failure')
+
+    print('Entity info:')
+    e.dump()
 
 if __name__ == '__main__':
     main()

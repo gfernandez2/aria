@@ -34,6 +34,10 @@ class player:
             for move in class_info['moves']:
                 self.pd['moves'][move] = 0
 
+            # maps status effects (moves) to when they were most recently applied, as well as 
+            # mod list [n, n, n, n, n, n] which is applied when status is reversed
+            self.pd['status'] = dict()
+
             # initialize current health
             self.pd['health'] = self.pd['stats'][0]
 
@@ -78,30 +82,84 @@ class player:
                 incr = random.choices([1, 0], weights=[100, 100-chance])[0]
                 self.pd['stats'][i] += incr
     
+    # Handler for phys/mag type moves
     # inflict damage on player
     # returns if hit landed or not, and dmg inflicted
     def damage(self, move, dmg):
         # get move info
-        move = G.MOVES[move]
+        move_info = G.MOVES[move]
         
         # get chance hit lands
         # speed of player decreases this chance (percentage)
-        chance = int(move['chance'] * (1 - (self.pd['stats'][5]/100) ))
+        chance = int(move_info['chance'] * (1 - (self.pd['stats'][5]/100) ))
+
+        # determine if hit lands
+        hit = random.choices([True, False], weights=[chance, 100-chance])[0]
+
+        if not hit:
+            return hit, 0
 
         # apply modifications to stats
         mod_stats = [max(0, sum(i)) for i in zip(self.pd['stats'], self.pd['mods'])]
 
-        if move['type'] == 'physical':
+        if move_info['type'] == 'physical':
             dmg = max(0, dmg - mod_stats[2]) # subtract def
-        elif move['type'] == 'magic':
+        elif move_info['type'] == 'magic':
             dmg = max(0, dmg - mod_stats[4]) # subtract res
 
-        hit = random.choices([True, False], weights=[chance, 100-chance])[0]
-        
-        if hit:
-            self.pd['health'] = max(0, self.pd['health'] - dmg)
+        self.pd['health'] = max(0, self.pd['health'] - dmg)
 
         return hit, dmg
+    
+    # Handler for status-type moves
+    # applies status move buff/debuff to player
+    # returns move success
+    def apply_status(self, move):
+        # get move info
+        move_info = G.MOVES[move]
+        
+        # get chance hit lands
+        # speed of player decreases this chance (percentage)
+        chance = int(move_info['chance'] * (1 - (self.pd['stats'][5]/100) ))
+
+        # determine if move succeeds
+        hit = random.choices([True, False], weights=[chance, 100-chance])[0]
+
+        if not hit:
+            return hit
+
+        base_mods = move_info['mod']
+        new_mods = [0 for _ in range(len(self.pd['stats']))]
+        scale = move_info['scale']
+
+        for i in range(len(self.pd['stats'])):
+            if base_mods[i] == 0:
+                continue
+            # calculate modifications based on respective base stat
+            new_mods[i] = base_mods[i] * int(self.pd['stats'][i] * (scale/100))
+
+        # apply new_mods to mods
+        self.pd['mods'] = [sum(i) for i in zip(new_mods, self.pd['mods'])]
+
+        # record status time and reversal array
+        self.pd['status'][move] = dict()
+        self.pd['status'][move]['time'] = time.time()
+        self.pd['status'][move]['reverse'] = [-1 * i for i in new_mods]
+        
+        return hit
+
+    # Handler for heal-type moves
+    def heal(self, move):
+        # get move info
+        move_info = G.MOVES[move]
+
+        # calculate heal amount based on HP stat
+        heal_amt = int(self.pd['stats'][0] * (move_info['scale']/100))
+
+        # apply heal amount, capped by HP stat
+        self.pd['health'] = min(self.pd['stats'][0], self.pd['health'] + heal_amt)
+
+        return heal_amt
     
     # attemps to use move in player's moveset
     # returns if cooldown check passes - implementation of move is in game.py
@@ -112,7 +170,6 @@ class player:
             return True
 
         return False
-
 
     def dump(self):
         print(self.pd)

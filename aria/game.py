@@ -36,7 +36,11 @@ class game:
 
     def add_player(self, socket, name, pclass):
         # TODO: loading pre-existing player data
+        if len(self.gd['players']) == 4:
+            return False
+
         self.gd['players'][socket] = player(name, pclass)
+        return True
 
     def generate_dungeon(self):
         for i in range(G.DUNGEON_SIZE):
@@ -121,6 +125,9 @@ class game:
                     e = entity(chosen_enemy, self.gd['scale'])
                     self.gd['enemies'].append(e)
 
+    # attempts to execute move requested by socket
+    def move(self, socket, move):
+
     # check for defeated status     
     def check_defeat(self):
         for p in self.gd['players'].values():
@@ -131,4 +138,3 @@ class game:
 
     def dump(self):
         print(self.gd)
-

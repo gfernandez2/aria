@@ -165,37 +165,52 @@ ENEMIES = {
 }
 
 # Move information
+#
+# cooldown - time (s) before move can be used again
+# chance - % chance of move success
+# type - physical uses (atk, def) for calculation, magic uses (mag, res), status buff/debuffs stats
+# target - how many targets are affected by move
+# side - whether player or enemy side is affected
+# scale - % damage scaling with atk/mag for phys/magic moves, or % incr/decr of stat for status moves, or % heal for heal moves
+#
+# for status moves:
+# duration - how long buff/debuff lasts
+# mod - list which stores what stats are affected (1 or -1 for incr or decr)
+#
+# chance field shouldn't really be needed for heal-type moves, those should always land
+#
+# Vairocana is a unique move used by the final boss - this randomly evokes any possible move
+
 # Includes player and enemy moves
-# Cooldown (s) and % chance of success
 MOVES = {
-    'strike'    : {'cooldown' : 3,  'chance' : 95, 'type' : 'physical', 'target' : 'single'},
-    'guard'     : {'cooldown' : 15, 'chance' : 45, 'type' : 'status',   'target' : 'single'},
-    'multislash': {'cooldown' : 180,'chance' : 85, 'type' : 'physical', 'target' : 'all'},
-    'blast'     : {'cooldown' : 3,  'chance' : 95, 'type' : 'magic',    'target' : 'single'},
-    'miasma'    : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'all'},
-    'manastorm' : {'cooldown' : 150,'chance' : 80, 'type' : 'magic',    'target' : 'all'},
-    'heal'      : {'cooldown' : 8,  'chance' : 95, 'type' : 'status',   'target' : 'single'},
-    'enhance'   : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'single'},
-    'refresh'   : {'cooldown' : 120,'chance' : 100,'type' : 'status',   'target' : 'all'},
-    'bash'      : {'cooldown' : 5,  'chance' : 80, 'type' : 'physical', 'target' : 'single'},
-    'shield'    : {'cooldown' : 45, 'chance' : 65, 'type' : 'status',   'target' : 'single'},
-    'bastion'   : {'cooldown' : 200,'chance' : 95, 'type' : 'physical', 'target' : 'all'},
+    'strike'    : {'cooldown' : 3,  'chance' : 95, 'type' : 'physical', 'target' : 'single', 'side' : 'enemy', 'scale' : 100},
+    'guard'     : {'cooldown' : 15, 'chance' : 45, 'type' : 'status',   'target' : 'self',   'side' : 'player','scale' : 30, 'duration' : 10, 'mod' : [0, 0, 1, 0, 0, 0]},
+    'multislash': {'cooldown' : 180,'chance' : 85, 'type' : 'physical', 'target' : 'all',    'side' : 'enemy', 'scale' : 150},
+    'blast'     : {'cooldown' : 3,  'chance' : 95, 'type' : 'magic',    'target' : 'single', 'side' : 'enemy', 'scale' : 120},
+    'miasma'    : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'all',    'side' : 'enemy', 'scale' : 20, 'duration' : 40, 'mod' : [0, 0, -1, 0, -1, 0]},
+    'manastorm' : {'cooldown' : 150,'chance' : 80, 'type' : 'magic',    'target' : 'all',    'side' : 'enemy', 'scale' : 180},
+    'heal'      : {'cooldown' : 8,  'chance' : 100,'type' : 'heal',     'target' : 'single', 'side' : 'player','scale' : 25},
+    'enhance'   : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'single', 'side' : 'player','scale' : 30, 'duration' : 50, 'mod' : [0, 1, 0, 1, 0, 0]},
+    'refresh'   : {'cooldown' : 150,'chance' : 100,'type' : 'heal',     'target' : 'all',    'side' : 'player','scale' : 50},
+    'bash'      : {'cooldown' : 10, 'chance' : 80, 'type' : 'physical', 'target' : 'single', 'side' : 'enemy', 'scale' : 60},
+    'shield'    : {'cooldown' : 75, 'chance' : 65, 'type' : 'status',   'target' : 'self',   'side' : 'player','scale' : 50, 'duration' : 60, 'mod' : [0, 0, 1, 0, 1, 0]},
+    'bastion'   : {'cooldown' : 200,'chance' : 95, 'type' : 'physical', 'target' : 'all',    'side' : 'enemy', 'scale' : 80},
 
-    'jab'       : {'cooldown' : 15, 'chance' : 60, 'type' : 'physical', 'target' : 'single'},
-    'claw'      : {'cooldown' : 20, 'chance' : 80, 'type' : 'physical', 'target' : 'single'},
-    'bounce'    : {'cooldown' : 18, 'chance' : 65, 'type' : 'physical', 'target' : 'single'},
-    'club'      : {'cooldown' : 15, 'chance' : 40, 'type' : 'physical', 'target' : 'single'},
-    'crush'     : {'cooldown' : 18, 'chance' : 50, 'type' : 'physical', 'target' : 'single'},
-    'stomp'     : {'cooldown' : 25, 'chance' : 70, 'type' : 'physical', 'target' : 'all'},
-    'growl'     : {'cooldown' : 30, 'chance' : 95, 'type' : 'status',   'target' : 'all'},
-    'phase'     : {'cooldown' : 20, 'chance' : 65, 'type' : 'magic',    'target' : 'single'},
-    'strangle'  : {'cooldown' : 25, 'chance' : 80, 'type' : 'physical', 'target' : 'single'},
-    'spook'     : {'cooldown' : 40, 'chance' : 95, 'type' : 'status',   'target' : 'all'},
-    'darkblast' : {'cooldown' : 15, 'chance' : 65, 'type' : 'magic',    'target' : 'single'},
-    'corrupt'   : {'cooldown' : 30, 'chance' : 80, 'type' : 'status',   'target' : 'all'},
-    'maelstrom' : {'cooldown' : 200,'chance' : 55, 'type' : 'magic',    'target' : 'all'},
+    'jab'       : {'cooldown' : 15, 'chance' : 60, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 60},
+    'claw'      : {'cooldown' : 20, 'chance' : 80, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 80},
+    'bounce'    : {'cooldown' : 18, 'chance' : 65, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 50},
+    'club'      : {'cooldown' : 15, 'chance' : 40, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 120},
+    'crush'     : {'cooldown' : 18, 'chance' : 50, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 150},
+    'stomp'     : {'cooldown' : 25, 'chance' : 70, 'type' : 'physical', 'target' : 'all',    'side' : 'player','scale' : 150},
+    'growl'     : {'cooldown' : 30, 'chance' : 95, 'type' : 'status',   'target' : 'all',    'side' : 'player','scale' : 30, 'duration' : 30, 'mod' : [0, -1, -1, 0, 0, 0]},
+    'phase'     : {'cooldown' : 20, 'chance' : 65, 'type' : 'magic',    'target' : 'single', 'side' : 'player','scale' : 110},
+    'strangle'  : {'cooldown' : 25, 'chance' : 80, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 100},
+    'spook'     : {'cooldown' : 40, 'chance' : 95, 'type' : 'status',   'target' : 'all',    'side' : 'player','scale' : 40, 'duration' : 30, 'mod' : [0, 0, -1, 0, 0, 0]},
+    'darkblast' : {'cooldown' : 15, 'chance' : 65, 'type' : 'magic',    'target' : 'single', 'side' : 'player','scale' : 150},
+    'corrupt'   : {'cooldown' : 50, 'chance' : 80, 'type' : 'status',   'target' : 'all',    'side' : 'player','scale' : 50, 'duration' : 40, 'mod' : [0, 0, 0, -1, -1, 0]},
+    'maelstrom' : {'cooldown' : 200,'chance' : 55, 'type' : 'magic',    'target' : 'all',    'side' : 'player','scale' : 180},
 
-    'Vairocana' : {'cooldown' : 30, 'chance' : 75, 'type' : 'magic',    'target' : 'all'}
+    'Vairocana' : {'cooldown' : 30, 'chance' : 75, 'type' : 'magic',    'target' : 'all',    'side' : 'player'}
 }
 
 # Equipment characteristics goes here

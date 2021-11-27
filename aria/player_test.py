@@ -16,8 +16,8 @@ def main():
 
     print('Player info:')
     p1.dump()
-    print('Inflict damage=20 on player using move=claw')
-    hit, dmg = p1.damage('claw', 20)
+    print('Inflict damage=30 on player using move=claw')
+    hit, dmg = p1.damage('claw', 30)
     if hit:
         print(f'Dealt {dmg} damage to player')
     else:
@@ -42,6 +42,23 @@ def main():
     else:
         print('Failed to perform move')
 
+    print('Applying status move=growl')
+    success = p1.apply_status('growl')
+    if success:
+        print('Move success')
+    else:
+        print('Move failure')
+
+    print('Player info:')
+    p1.dump()
+
+    print('Applying move=heal')
+    heal = p1.heal('heal')
+
+    print(f'Healed {heal} hp')
+    
+    print('Player info:')
+    p1.dump()
 
 if __name__ == '__main__':
     main()
