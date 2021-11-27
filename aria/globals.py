@@ -72,7 +72,7 @@ ENEMIES = {
         'difficulty' : 1,
         'base'   : [60, 8, 10, 8, 10, 6],
         'spread' : [90, 30, 10, 20, 25, 7],
-        'moves'  : ['jab', 'claw']
+        'moves'  : ['jab', 'claw'],
         'rate'   : 35
     },
     'slime' : {
@@ -85,7 +85,7 @@ ENEMIES = {
         'difficulty' : 1,
         'base'   : [90, 5, 5, 5, 5, 2],
         'spread' : [85, 10, 10, 10, 10, 5],
-        'moves'  : ['bounce']
+        'moves'  : ['bounce'],
         'rate'   : 60
     },
     'troll' : {
@@ -97,7 +97,7 @@ ENEMIES = {
         'difficulty' : 2,
         'base'   : [120, 20, 18, 15, 10, 2],
         'spread' : [90, 50, 50, 35, 35, 5],
-        'moves'  : ['club', 'stomp']
+        'moves'  : ['club', 'stomp'],
         'rate'   : 140
     },
     'golem' : {
@@ -110,7 +110,7 @@ ENEMIES = {
         'difficulty' : 2,
         'base'   : [150, 20, 30, 15, 10, 2],
         'spread' : [40, 50, 100, 35, 35, 5],
-        'moves'  : ['crush', 'growl']
+        'moves'  : ['crush', 'growl'],
         'rate'   : 100
     },
     'orc' : {
@@ -123,7 +123,7 @@ ENEMIES = {
         'difficulty' : 2,
         'base'   : [130, 20, 30, 15, 10, 2],
         'spread' : [40, 50, 50, 20, 20, 5],
-        'moves'  : ['club', 'growl']
+        'moves'  : ['club', 'growl'],
         'rate'   : 140
     },
     'ghoul' : {
@@ -136,7 +136,7 @@ ENEMIES = {
         'difficulty' : 3,
         'base'   : [200, 30, 30, 50, 50, 20],
         'spread' : [90, 45, 45, 50, 50, 15],
-        'moves'  : ['phase', 'strangle', 'spook']
+        'moves'  : ['phase', 'strangle', 'spook'],
         'rate'   : 350
     },
     'lich' : {
@@ -148,7 +148,7 @@ ENEMIES = {
         'difficulty' : 3,
         'base'   : [200, 20, 30, 15, 10, 2],
         'spread' : [90, 50, 50, 20, 20, 5],
-        'moves'  : ['darkblast', 'corrupt', 'maelstrom']
+        'moves'  : ['darkblast', 'corrupt', 'maelstrom'],
         'rate'   : 350
     },
     'demon_king' : {
@@ -159,7 +159,7 @@ ENEMIES = {
         'difficulty' : 4,
         'base'   : [500, 50, 50, 50, 50, 10],
         'spread' : [50, 50, 50, 50, 50, 50],
-        'moves'  : ['Vairocana']
+        'moves'  : ['Vairocana'],
         'rate'   : 5000
     }
 }
@@ -202,3 +202,5 @@ MOVES = {
 
 # Game globals
 DUNGEON_SIZE = 11
+KEYS_REQUIRED = 3
+SPAWN_RATE = 45

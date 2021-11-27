@@ -19,7 +19,7 @@ class player:
             self.pd['xp'] = 0
             self.pd['level'] = 1
             self.pd['class'] = pclass
-            self.pd['defeated'] = False
+            # self.pd['defeated'] = False
             
             # get class info
             class_info = G.CLASSES[pclass]
@@ -89,7 +89,7 @@ class player:
         chance = int(move['chance'] * (1 - (self.pd['stats'][5]/100) ))
 
         # apply modifications to stats
-        mod_stats = [sum(max(0, i)) for i in zip(self.pd['stats'], self.pd['mods'])]
+        mod_stats = [max(0, sum(i)) for i in zip(self.pd['stats'], self.pd['mods'])]
 
         if move['type'] == 'physical':
             dmg = max(0, dmg - mod_stats[2]) # subtract def
@@ -105,7 +105,7 @@ class player:
     
     # attemps to use move in player's moveset
     # returns if cooldown check passes - implementation of move is in game.py
-    def move(self, move):
+    def check_cooldown(self, move):
         curr = time.time()
         if curr - self.pd['moves'][move] > G.MOVES[move]['cooldown']:
             self.pd['moves'][move] = curr

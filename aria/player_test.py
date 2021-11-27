@@ -26,7 +26,7 @@ def main():
     p1.dump()
 
     print('Attempt to use move=strike')
-    move = p1.move('strike')
+    move = p1.check_cooldown('strike')
     if move:
         print('Move success')
     else:
@@ -36,7 +36,7 @@ def main():
     p1.dump()
 
     print('Attempt to use move=strike')
-    move = p1.move('strike')
+    move = p1.check_cooldown('strike')
     if move:
         print('Move success')
     else:

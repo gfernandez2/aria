@@ -9,6 +9,10 @@ def main():
     g = game(game_id)
     print('Game data:')
     g.dump()
+    print('Attempting to move north')
+    g.move_party('n')
+    print('Game data:')
+    g.dump()
 
 if __name__ == '__main__':
     main()

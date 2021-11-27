@@ -15,7 +15,7 @@ class entity:
     def __init__(self, etype, scale=5):
         # initialize player data
         self.ed = dict()
-        self.ed['defeated'] = False
+        # self.ed['defeated'] = False
         self.ed['class'] = etype
             
         # get class info
@@ -60,7 +60,7 @@ class entity:
         chance = int(move['chance'] * (1 - (self.ed['stats'][5]/100) ))
 
         # apply modifications to stats
-        mod_stats = [sum(max(0, i)) for i in zip(self.ed['stats'], self.ed['mods'])]
+        mod_stats = [max(0, sum(i)) for i in zip(self.ed['stats'], self.ed['mods'])]
 
         if move['type'] == 'physical':
             dmg = max(0, dmg - mod_stats[2]) # subtract def
