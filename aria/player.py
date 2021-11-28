@@ -48,9 +48,6 @@ class player:
             self.pd['items'] = {'potions' : 2}
             self.pd['weapon'] = None
 
-    def get_health(self):
-        return self.pd['health']
-
     # returns current stats (with mods applied)
     def get_stats(self):
         return [max(0, sum(i)) for i in zip(self.pd['stats'], self.pd['mods'])]

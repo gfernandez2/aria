@@ -22,7 +22,7 @@ def main():
     g.add_player('player3', 'Candice', 'healer')
     g.add_player('player4', 'Dan', 'tank')
 
-    players = g.get_players()
+    players = g.gd['players']
 
     print('Spawning enemies')
     for _ in range(10):

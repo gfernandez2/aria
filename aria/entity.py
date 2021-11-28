@@ -41,13 +41,6 @@ class entity:
         # status modifiers
         self.ed['mods'] = [0 for _ in range(len(self.ed['stats']))]
 
-    def get_health(self):
-        return self.ed['health']
-
-    # returns unmodified base stats
-    def get_base_stats(self):
-        return self.ed['stats']      
-
     # returns current stats (with mods applied)
     def get_stats(self):
         return [max(0, sum(i)) for i in zip(self.ed['stats'], self.ed['mods'])]

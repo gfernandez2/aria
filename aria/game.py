@@ -42,10 +42,6 @@ class game:
         self.gd['players'][socket] = player(name, pclass)
         return True
 
-    # for now, only needed for testing
-    def get_players(self):
-        return self.gd['players']
-
     def generate_dungeon(self):
         for i in range(G.DUNGEON_SIZE):
             for j in range(G.DUNGEON_SIZE):
@@ -188,10 +184,10 @@ class game:
         # check for defeated enemies
         for enemy in self.gd['enemies']:
             #print('Test')
-            if enemy.get_health() == 0:
+            if enemy.ed['health'] == 0:
                 #print('Defeated enemy detected')
                 removal.append(enemy)
-                stat_sum = sum(enemy.get_base_stats())
+                stat_sum = sum(enemy.ed['stats'])
                 # distribute xp reward
                 for player in self.gd['players'].values():
                     pstats = player.get_stats()
