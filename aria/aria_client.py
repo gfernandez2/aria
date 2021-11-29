@@ -2,7 +2,6 @@ import curses
 import os
 import socket
 import sys
-import json
 import select
 from curses import wrapper
 
@@ -20,8 +19,6 @@ def main(stdscr):
 	# launch curses window
 	rows, cols = g.get_window_size()
 	g.launch_graphics(rows, cols)
-
-	x = 0
 
 	# main loop
 	# we do two things on each loop iteration:
@@ -42,13 +39,10 @@ def main(stdscr):
 			data = net.recv(sock)
 			# todo: decide what to do with the data from the game server
 			g.update_feed(data)
-			x += 1
-		
-		if x == 20:
-			break
-
+			
 		res = g.get_input()
 		if res is not None:
+			# todo: decide what to do with the keyboard input
 			g.update_graphics(res)
 
 	
@@ -56,8 +50,6 @@ def main(stdscr):
 	#res = net.send(socket, "disconnect")
 	curses.endwin()
 
+
 curses.wrapper(main)
-
-
-
 
