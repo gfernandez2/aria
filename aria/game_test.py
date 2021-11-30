@@ -25,7 +25,7 @@ def main():
     players = g.gd['players']
 
     print('Spawning enemies')
-    for _ in range(10):
+    for _ in range(5):
         g.spawn_enemies()
     print('Game data:')
     gd = g.dump()

@@ -142,6 +142,12 @@ class player:
         base_mods = move_info['mod']
         new_mods = [0 for _ in range(len(self.pd['stats']))]
         scale = move_info['scale']
+        
+        for i in range(len(self.pd['stats'])):
+            if base_mods[i] == 0:
+                continue
+            # calculate modifications based on respective base stat
+            new_mods[i] = base_mods[i] * int(self.pd['stats'][i] * (scale/100))
 
         # Augment resp based on stat effects of move
         for i in range(len(base_mods)):
@@ -151,18 +157,12 @@ class player:
             resp += G.STATS[i] + ' '
             
             if base_mods[i] == 1:
-                resp += 'up!\n'
+                resp += f'up by {new_mods[i]}!\n'
             elif base_mods[i] == -1:
-                resp += 'down!\n'
+                resp += f'down by {-1*new_mods[i]}!\n'
 
         # remove last newline
         resp = resp[:-1]
-        
-        for i in range(len(self.pd['stats'])):
-            if base_mods[i] == 0:
-                continue
-            # calculate modifications based on respective base stat
-            new_mods[i] = base_mods[i] * int(self.pd['stats'][i] * (scale/100))
 
         # apply new_mods to mods
         self.pd['mods'] = [sum(i) for i in zip(new_mods, self.pd['mods'])]
