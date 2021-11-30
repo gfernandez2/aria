@@ -71,7 +71,7 @@ class entity:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return hit, 0
+            return f"{move} on {self.ed['name']} missed!"
 
         # get status with mods applied         
         mod_stats = self.get_stats()
@@ -83,7 +83,7 @@ class entity:
 
         self.ed['health'] = max(0, self.ed['health'] - dmg)
 
-        return hit, dmg
+        return f"{move} on {self.ed['name']} hit for {dmg} damage!"
 
     # Handler for status-type moves
     # applies status move buff/debuff to player
@@ -100,11 +100,28 @@ class entity:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return hit
+            return f"{move} on {self.ed['name']} missed!"
+
+        resp = f"{move} on {self.ed['name']} succeeded!\n"
 
         base_mods = move_info['mod']
         new_mods = [0 for _ in range(len(self.ed['stats']))]
         scale = move_info['scale']
+
+        # Augment resp based on stat effects of move
+        for i in range(len(base_mods)):
+            if base_mods[i] == 0:
+                continue;
+
+            resp += G.STATS[i] + ' '
+
+            if base_mods[i] == 1:
+                resp += 'up!\n'
+            elif base_mods[i] == -1:
+                resp += 'down!\n'
+
+        # remove last newline
+        resp = resp[:-1]
 
         for i in range(len(self.ed['stats'])):
             if base_mods[i] == 0:
@@ -120,22 +137,39 @@ class entity:
         self.ed['status'][move]['time'] = time.time()
         self.ed['status'][move]['reverse'] = [-1 * i for i in new_mods]
         
-        return hit
+        return resp
 
     # check if move can be performed
     # returns if check passes
     def move_check(self, move):
         # check if entity can use move
         if move not in G.ENEMIES[self.ed['class']]['moves']:
-            return False
+            return False, f'{move} cannot be used!'
 
         # cooldown check
         curr = time.time()
         if curr - self.ed['moves'][move] < G.MOVES[move]['cooldown']:
-            return False
+            return False, f'{move} still in cooldown!'
 
         self.ed['moves'][move] = curr
-        return True
+        return True, f'{move} can be used!'
+
+    # looks at all currently active status effects
+    # if duration is passed, status is removed and effects are reversed
+    def status_check(self):
+        curr = time.time()
+        remove_list = []
+        for status, info in self.ed['status'].items():
+            # if duration is up
+            if curr - info['time'] > G.MOVES[status]['duration']:
+                # apply reversal to stat mods
+                self.ed['mods'] = [sum(i) for i in zip(info['reverse'], self.ed['mods'])]
+                # mark status for removal from dictionary
+                remove_list.append(status)
+
+        # remove status effects marked for removal
+        for status in remove_list:
+            del self.ed['status'][status]
 
     def dump(self):
         print(self.ed)

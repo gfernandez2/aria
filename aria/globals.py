@@ -25,18 +25,28 @@ LEVEL_THRESHOLDS = {
     20 : 50000
 }
 
-# Class specializations
-# Stat layout : [HP, ATK, DEF, MAG, RES, SPD]
+# Stat layout : [HP, ATK, DEF, MAG, RES, LCK]
 #
 # HP - health points
 # ATK - base inflicted damage for physical-type moves
 # DEF - subtracted from incomiong physical-type damage
 # MAG - base inflicted damage for magic-type moves
 # RES - subtracted from incoming magic-type damage
-# SPD - decreases success-rate of incoming attacks
+# LCK - decreases success-rate of incoming attacks, increases potential xp gains
 #
+# Maps index to specified stat
+STATS = {
+    0 : 'HP',
+    1 : 'ATK',
+    2 : 'DEF',
+    3 : 'MAG',
+    4 : 'RES',
+    5 : 'LCK'
+}
+
+# Class specializations
 # Base stats are guaranteed starting stats
-# Stat spread are probability of increasing stat (by 1), 
+# Stat spread are probability of increasing stat (by 1)
 CLASSES = {
     'knight' : {
         'base'   : [25, 12, 8, 5, 8, 5],

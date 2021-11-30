@@ -36,10 +36,21 @@ class game:
 
     def add_player(self, socket, name, pclass):
         # TODO: loading pre-existing player data
+        # if full, reject
         if len(self.gd['players']) == 4:
-            return False
+            return self.broadcast('Player {name} can\'t join! There are currently 4 players in the party.\n')
 
         self.gd['players'][socket] = player(name, pclass)
+        
+        # test if first player, set to leader
+        if len(self.gd['players']) == 1:
+            self.gd['players'][socket].pd['leader'] = True
+
+        return self.broadcast(f'Player {name} successfully joined the party. Welcome!\n')
+
+
+    def remove_player(self, socket):
+        del self.gd['players'][socket]
         return True
 
     def generate_dungeon(self):
@@ -61,39 +72,38 @@ class game:
     # attempt to move party to new room
     # dir - n, w, e, s
     def move_party(self, direction):
+        resp = dict()
+        resp['msg_type'] = announce
+
         # cannot move if enemies at current location
         if self.gd['enemies']:
-            return False
+            return self.broadcast('Your party cannot move! There are enemies still present in the room.\n')
 
         curr_loc = self.gd['location']
         mod_loc = [0, 0] # stores modifications to make to location
         direction = direction.lower()
-        if direction == 'n':
-            if 0 <= curr_loc[0] - 1:
-                mod_loc[0] -= 1
-        elif direction == 'w':
-            if 0 <= curr_loc[1] - 1:
-                mod_loc[1] -= 1
-        elif direction == 'e':
-            if curr_loc[1] + 1 < G.DUNGEON_SIZE:
-                mod_loc[1] += 1
-        elif direction == 's':
-            if curr_loc[0] + 1 < G.DUNGEON_SIZE:
-                moc_loc[1] += 1
+        if direction == 'n' and 0 <= curr_loc[0] - 1:
+            mod_loc[0] -= 1
+        elif direction == 'w' and 0 <= curr_loc[1] - 1:
+            mod_loc[1] -= 1
+        elif direction == 'e' and curr_loc[1] + 1 < G.DUNGEON_SIZE:
+            mod_loc[1] += 1
+        elif direction == 's' and curr_loc[0] + 1 < G.DUNGEON_SIZE:
+            moc_loc[1] += 1
         else:
-            return False
+            return self.broadcast('There\'s no door there! Confused, your party stays where it is.\n')
 
         new_loc = [sum(i) for i in zip(curr_loc, mod_loc)]
 
         if self.gd['dungeon'][new_loc[0]][new_loc[1]]['boss'] == True and self.gd['keys'] < G.KEYS_REQUIRED:
-            return False
+            return self.broadcast('You cannot go there just yet! You must collect more keys from enemies.\n')
 
         self.gd['location'] = new_loc
 
         # spawn enemies at new location
         self.spawn_enemies()
 
-        return True
+        return self.broadcast('Your party cautiously walks into the neighboring room.\n')
 
     def spawn_enemies(self):
         curr_loc = self.gd['location']
@@ -130,50 +140,58 @@ class game:
     # for now, single targets are chosen at random
     def execute_move(self, move, requester):
         # check if move can be executed
-        proceed = requester.move_check(move)
+        proceed, msg = requester.move_check(move)
         if not proceed:
-            print('Move failure')
-            return False
+            return self.broadcast(msg)
 
         # unique handling of Vairocana - evokes random move from globals.py
         if move == 'Vairocana':
             while move == 'Vairocana':
                 move = random.choice(G.MOVES.keys())
+            targets = players
+        else:
+            # get move info
+            mi = G.MOVES[move]
+            targets = []
+            players = self.gd['players'].values()
+            enemies = self.gd['enemies']
 
-        # get move info
-        mi = G.MOVES[move]
-        targets = []
-        players = self.gd['players'].values()
-        enemies = self.gd['enemies']
-
-        # determine target
-        # self targets are only status-type moves
-        if mi['target'] == 'self':
-            return requester.apply_status(move)
-        elif mi['target'] == 'single':
-            if mi['side'] == 'player':
-                targets.append(random.choice(players))
-            elif mi['side'] == 'enemy':
-                targets.append(random.choice(enemies))
-        elif mi['target'] == 'all':
-            if mi['side'] == 'player':
-                targets = players
-            elif mi['side'] == 'enemy':
-                targets = enemies
+            # determine target
+            # self targets are only status-type moves
+            if mi['target'] == 'self':
+                return requester.apply_status(move)
+            elif mi['target'] == 'single':
+                if mi['side'] == 'player':
+                    targets.append(random.choice(players))
+                elif mi['side'] == 'enemy':
+                    targets.append(random.choice(enemies))
+            elif mi['target'] == 'all':
+                if mi['side'] == 'player':
+                    targets = players
+                elif mi['side'] == 'enemy':
+                    targets = enemies
 
         # apply move onto target(s)
         mtype = mi['type']
         scale = mi['scale']
         stats = requester.get_stats()
+        resp = ''
         for target in targets:
             if mtype == 'physical':
-                target.damage(move, int(stats[1] * (scale/100)))
+                msg = target.damage(move, int(stats[1] * (scale/100)))
             elif mtype == 'magic':
-                target.damage(move, int(stats[3] * (scale/100)))
+                msg = target.damage(move, int(stats[3] * (scale/100)))
             elif mtype == 'status':
-                target.apply_status(move)
+                msg = target.apply_status(move)
             elif mtype == 'heal':
-                target.heal(move)
+                msg = target.heal(move)
+            
+            resp += msg + '\n'
+
+        # remove last newline
+        resp = resp[:-1]
+
+        return self.broadcast(resp)
 
     # checks for enemies that are defeated
     # removes defeated enemies and awards players xp
@@ -204,6 +222,24 @@ class game:
                 return False
 
         return True
+
+    # simple broadcast for a live feed message
+    # message assumed to be a string
+    def broadcast(self, message):
+        resp = dict()
+        resp['msg_type'] = 'broadcast'
+        resp['msg'] = message
+        payload = json.dumps(resp)
+        # send message to all player sockets
+        for socket in self.gd['players'].keys():
+            try:
+                length = str(len(payload))
+                combined = length + '!' + payload
+                socket.sendall(combined.encode('utf-8'))
+            except Exception:
+                continue
+
+        return resp
 
     def dump(self):
         return self.gd
