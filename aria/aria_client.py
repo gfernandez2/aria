@@ -23,6 +23,12 @@ def main(stdscr):
 
 	ackArr = []
 
+	while True:
+		res = g.get_input()
+		if res is not None:
+			net.send_login(sock, str(res))
+			break
+
 	# main loop
 	# we do three things on each loop iteration:
 	#
@@ -42,12 +48,12 @@ def main(stdscr):
 			data = net.recv(sock)
 
 			try:
-				act = data["type"]
+				resp = data["msg_type"]
 			except:
 				# dosomething
 				pass
 
-			if act == "update":
+			if resp == "update":
 				if data["window"] == "pStatus":
 					g.update_pStatus(data)# split by fields?
 
@@ -58,8 +64,8 @@ def main(stdscr):
 					#dosomething
 					pass
 
-			elif act == "broadcast":
-				g.update_feed(data["message"]) 
+			elif resp == "broadcast":
+				g.update_feed(data["msg"]) 
 
 					
 		res = g.get_input()
