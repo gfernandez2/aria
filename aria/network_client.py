@@ -1,6 +1,11 @@
 import os
 import socket
 import sys
+import signal
+
+
+def handler(signum, frame):
+	pass
 
 
 # establish connection to the game server
@@ -11,13 +16,28 @@ def connect(host, port):
 	sock.connect(server_address)
 	return sock
 
-
+	
 # send a message and its length to the game server
-def send(sock, message):
+# todo: might need a wrapper to handle when sendall hangs
+# todo: handle login later - (login will have 3 fields)
+def send(sock, cmd):
+	
+	try:
+		method, arg = cmd.split()[:2]
+	except:
+		pass
+		# dosomething
+
+	stime = time.time()
+	message = {
+				"method":method,
+				"arg":arg
+			}	
+	
 	length = str(len(message))
 	combined = length + '!' + message
 	sock.sendall(combined.encode())
-
+ 
 
 # recieve a message from the game server
 def recv(sock):

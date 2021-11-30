@@ -106,16 +106,26 @@ def update_feed(s):
 	windows[1].addstr(feedRow, 3, str(s))
 	windows[1].refresh()	
 
-'''
+
 def update_pStatus(s):
-'''
+	line1 = "HP: " + str(s["hp"])
+	line2 = "Level: " + str(s["level"]) + "   " + "XP: " + str(s["xp"])
+	line3 = "keys: " + str(s["keys"])
+	windows[2].clear()
+	windows[2].addstr(3, 3, line1)
+	windows[2].addstr(4, 3, line2)
+	windows[2].addstr(5, 3, line3) 
+	windows[2].refresh()	
+
 
 # for now just prints the string input
+# todo: will need to access local graphics library
 def update_graphics(s):
 	windows[3].addstr(3, 3, str(s))
 	windows[3].refresh()
 
-'''
+
+# array of jsons? json of jsons?
 def update_eStatus(s):
-'''
+	
 
