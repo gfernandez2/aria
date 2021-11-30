@@ -120,7 +120,7 @@ def main():
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
                     if request['method'] == 'login':
-                        g.gd.add_player(so, request['name'], request['class'])
+                        g.add_player(so, request['name'], request['class'])
                 
                     elif request['method'] == 'move':
                         if g.gd['players'][so]['leader'] == True:
