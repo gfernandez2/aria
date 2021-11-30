@@ -8,37 +8,24 @@ def main():
     print('Entity info:')
     e.dump()
     print('Inflict damage=120 on entity using move=multislash')
-    hit, dmg = e.damage('multislash', 120)
-    if hit:
-        print(f'Dealt {dmg} damage to entity')
-    else:
-        print('Attack missed')
+    print(e.damage('multislash', 120))
+
     print('Entity info:')
     e.dump()
 
     print('Attempt to use move=Vairocana')
-    move = e.move_check('Vairocana')
-    if move:
-        print('Move success')
-    else:
-        print('Failed to perform move')
+    move, msg = e.move_check('Vairocana')
+    print(msg)
 
     print('Entity info:')
     e.dump()
 
     print('Attempt to use move=strike')
-    move = e.move_check('strike')
-    if move:
-        print('Move success')
-    else:
-        print('Failed to perform move')
+    move, msg = e.move_check('strike')
+    print(msg)
 
     print('Applying status move=miasma')
-    success = e.apply_status('miasma')
-    if success:
-        print('Move success')
-    else:
-        print('Move failure')
+    print(e.apply_status('miasma'))
 
     print('Entity info:')
     e.dump()

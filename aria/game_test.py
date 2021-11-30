@@ -40,32 +40,24 @@ def main():
     print(gd['players'])
 
     print('Executing move=miasma from player2')
-    success = g.execute_move('miasma', players['player2'])
-    if not success:
-        print('Move success')
-    else:
-        print('Move failure')
+    result = g.execute_move('miasma', players['player2'])
+    print(result['msg'])
+
     print('Game data:')
     gd = g.dump()
     print(gd['enemies'])
     
     print('Executing move=multislash from player1:')
-    success = g.execute_move('multislash', players['player1'])
-    if not success:
-        print('Move success')
-    else:
-        print('Move failure')
+    result  = g.execute_move('multislash', players['player1'])
+    print(result['msg'])
 
     print('Game data:')
     gd = g.dump()
     print(gd['enemies'])
 
     print('Executing move=manastorm from player2:')
-    success = g.execute_move('manastorm', players['player2'])
-    if not success:
-        print('Move success')
-    else:
-        print('Move failure')
+    result = g.execute_move('manastorm', players['player2'])
+    print(result['msg'])
 
     print('Game data:')
     gd = g.dump()
@@ -78,12 +70,6 @@ def main():
     gd = g.dump()
     print(gd['players'])
     print(gd['enemies'])
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()

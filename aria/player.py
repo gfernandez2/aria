@@ -19,7 +19,7 @@ class player:
             self.pd['xp'] = 0
             self.pd['level'] = 1
             self.pd['class'] = pclass
-            # self.pd['defeated'] = False
+            self.pd['leader'] = False
             
             # get class info
             class_info = G.CLASSES[pclass]
@@ -67,6 +67,7 @@ class player:
                 new_lvl = level
 
         if new_lvl != prev_lvl:
+            # TODO: Broadcast level up messages
             print(f"Player {self.pd['name']} has reached level {new_lvl}")
             self.pd['level'] = new_lvl
             # get current health ratio
@@ -105,7 +106,7 @@ class player:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return hit, 0
+            return f"{move} on {self.pd['name']} missed!"
 
         # get status with mods applied         
         mod_stats = self.get_stats()
@@ -117,7 +118,7 @@ class player:
 
         self.pd['health'] = max(0, self.pd['health'] - dmg)
 
-        return hit, dmg
+        return f"{move} on {self.pd['name']} hit for {dmg} damage!"
     
     # Handler for status-type moves
     # applies status move buff/debuff to player
@@ -127,19 +128,36 @@ class player:
         move_info = G.MOVES[move]
         
         # get chance hit lands
-        # speed of player decreases this chance (percentage)
+        # luck of player decreases this chance (percentage)
         chance = int(move_info['chance'] * max(0.5, (1 - (self.pd['stats'][5]/100))))
 
         # determine if move succeeds
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return hit
+            return f"{move} on {self.pd['name']} missed!"
+
+        resp = f"{move} on {self.pd['name']} succeeded!\n"
 
         base_mods = move_info['mod']
         new_mods = [0 for _ in range(len(self.pd['stats']))]
         scale = move_info['scale']
 
+        # Augment resp based on stat effects of move
+        for i in range(len(base_mods)):
+            if base_mods[i] == 0:
+                continue
+
+            resp += G.STATS[i] + ' '
+            
+            if base_mods[i] == 1:
+                resp += 'up!\n'
+            elif base_mods[i] == -1:
+                resp += 'down!\n'
+
+        # remove last newline
+        resp = resp[:-1]
+        
         for i in range(len(self.pd['stats'])):
             if base_mods[i] == 0:
                 continue
@@ -154,7 +172,7 @@ class player:
         self.pd['status'][move]['time'] = time.time()
         self.pd['status'][move]['reverse'] = [-1 * i for i in new_mods]
         
-        return hit
+        return resp
 
     # Handler for heal-type moves
     def heal(self, move):
@@ -167,22 +185,23 @@ class player:
         # apply heal amount, capped by HP stat
         self.pd['health'] = min(self.pd['stats'][0], self.pd['health'] + heal_amt)
 
-        return heal_amt
+        return f"Healed {heal_amt} HP to {self.pd['name']}."
+
     
     # check if move can be performed
     # returns if check passes
     def move_check(self, move):
         # check if player can use move
         if move not in G.CLASSES[self.pd['class']]['moves']:
-            return False
+            return False, f'{move} cannot be used!'
 
         # cooldown check
         curr = time.time()
         if curr - self.pd['moves'][move] < G.MOVES[move]['cooldown']:
-            return False
+            return False, f'{move} still in cooldown!'
 
         self.pd['moves'][move] = curr
-        return True
+        return True, f'{move} can be used!'
 
     # looks at all currently active status effects
     # if duration is passed, status is removed and effects are reversed

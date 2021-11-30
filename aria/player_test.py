@@ -16,47 +16,38 @@ def main():
 
     print('Player info:')
     p1.dump()
+    
     print('Inflict damage=30 on player using move=claw')
-    hit, dmg = p1.damage('claw', 30)
-    if hit:
-        print(f'Dealt {dmg} damage to player')
-    else:
-        print('Attack missed')
+    print(p1.damage('claw', 30))
+    
     print('Player info:')
     p1.dump()
 
     print('Attempt to use move=strike')
-    move = p1.move_check('strike')
-    if move:
-        print('Move success')
-    else:
-        print('Failed to perform move')
+    move, msg = p1.move_check('strike')
+    print(msg)
 
-    print('Player info:')
-    p1.dump()
+    print('Attempt to use move=strike')
+    move, msg = p1.move_check('strike')
+    print(msg)
+
+    print('Attempt to use move=Vairocana')
+    move, msg = p1.move_check('Vairocana')
+    print(msg)
 
     print('Attempt to use move=maelstrom')
-    move = p1.move_check('maelstrom')
-    if move:
-        print('Move success')
-    else:
-        print('Failed to perform move')
+    move, msg = p1.move_check('maelstrom')
+    print(msg)
 
     print('Applying status move=growl')
-    success = p1.apply_status('growl')
-    if success:
-        print('Move success')
-    else:
-        print('Move failure')
+    print(p1.apply_status('growl'))
 
     print('Player info:')
     p1.dump()
 
     print('Applying move=heal')
-    heal = p1.heal('heal')
+    print(p1.heal('heal'))
 
-    print(f'Healed {heal} hp')
-    
     print('Player info:')
     p1.dump()
 
