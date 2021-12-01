@@ -73,7 +73,7 @@ class game:
     # dir - n, w, e, s
     def move_party(self, direction):
         resp = dict()
-        resp['msg_type'] = announce
+        resp['msg_type'] = "announce"
 
         # cannot move if enemies at current location
         if self.gd['enemies']:
@@ -89,7 +89,7 @@ class game:
         elif direction == 'e' and curr_loc[1] + 1 < G.DUNGEON_SIZE:
             mod_loc[1] += 1
         elif direction == 's' and curr_loc[0] + 1 < G.DUNGEON_SIZE:
-            moc_loc[1] += 1
+            mod_loc[1] += 1
         else:
             return self.broadcast('There\'s no door there! Confused, your party stays where it is.\n')
 
