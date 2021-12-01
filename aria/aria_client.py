@@ -4,6 +4,7 @@ import socket
 import sys
 import select
 import time
+import json
 from curses import wrapper
 
 import network_client as net
@@ -26,7 +27,7 @@ def main(stdscr):
 	while True:
 		res = g.get_input()
 		if res is not None:
-			net.send_login(sock, str(res))
+			net.send_login(socket, str(res))
 			break
 
 	# main loop
@@ -42,10 +43,11 @@ def main(stdscr):
 	# 	 is detected, we perform the appropriate logic.
 	while True:
 
-		r, w, e = select.select(sockArr, [], [], 0.05)
+		r = select.select(sockArr, [], [], 0.01)[0]
 
 		for sock in r:
 			data = net.recv(sock)
+			data = json.loads(data)
 
 			try:
 				resp = data["msg_type"]
@@ -60,20 +62,17 @@ def main(stdscr):
 				elif data["window"] == "eStatus":
 					g.update_eStatus(data)
 				
-				elif data["window"] = "graphics":
-					#dosomething
-					pass
-
+				elif data["window"] == "graphics":
+					g.update_graphics(data)
+			
 			elif resp == "broadcast":
 				g.update_feed(data["msg"]) 
 
 					
 		res = g.get_input()
 		if res is not None:
-			# todo: try
 			net.send(socket, str(res))
-
-				
+		
 	
 	# need a clean disconnect sequence
 	#res = net.send(socket, "disconnect")

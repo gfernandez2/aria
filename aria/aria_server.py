@@ -24,7 +24,7 @@ def marshal(socket, message):
 def unmarshal(socket):
     buf = ''
     while '!' not in buf:
-        d = sock.recv(1)
+        d = socket.recv(1)
         d = d.decode('utf-8')
         buf += d
 
@@ -32,7 +32,7 @@ def unmarshal(socket):
 
     data = socket.recv(int(length))
     while(len(data) < int(length)):
-        data += sock.recv(int(length))
+        data += socket.recv(int(length))
 
     data = data.decode('utf-8')
 
@@ -98,6 +98,7 @@ def main():
             if so is s:
                 conn, addr = so.accept()
                 #so.setblocking(0)
+                print("connection")
                 sock_list.append(conn)
 
             else:
@@ -114,38 +115,48 @@ def main():
 
                     # Attempt to parse JSON
                     request = json.loads(client_request)
-
-                    player = g.gd['players'][so]
+                    print(request)
+                    try:
+                        player = g.gd['players'][so]
+                    except:
+                        pass
 
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
                     if request['method'] == 'login':
+                        print("login")
                         g.add_player(so, request['name'], request['class'])
                 
                     elif request['method'] == 'move':
-                        if g.gd['players'][so]['leader'] == True:
+                        print("move")
+                        if g.gd['players'][so].pd['leader'] == True:
                             g.move_party(request['arg'])
                 
                     elif request['method'] == 'action':
+                        print("action")
                         g.execute_move(request['arg'], player)
                             
                 # granular exception handling
                 except KeyError as ex:
+                    print("ke")
                     resp['result'] = 'failure'
                     resp['exception'] = 'KeyError'
                     resp['message'] = str(ex).strip("'")
 
                 except re.error as ex:
+                    print("re")
                     resp['result'] = 'failure'
                     resp['exception'] = 're.error'
                     resp['message'] = str(ex).strip("'")
 
                 except TypeError as ex:
+                    print("te")
                     resp['result'] = 'failure'
                     resp['exception'] = 'TypeError'
                     resp['message'] = str(ex).strip("'")
 
                 except ValueError as ex:
+                    print("ve")
                     resp['result'] = 'failure'
                     resp['exception'] = 'ValueError'
                     resp['message'] = str(ex).strip("'")

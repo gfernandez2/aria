@@ -2,7 +2,8 @@ import os
 import socket
 import sys
 import signal
-
+import time
+import json
 
 def handler(signum, frame):
 	pass
@@ -22,19 +23,15 @@ def connect(host, port):
 # todo: handle login later - (login will have 3 fields)
 def send_login(sock, cmd):
 	
-	try:
-		method, name, clas = cmd.split()[:3]
-	except:
-		pass
-		# dosomething
-
+	method, name, clas = cmd.split()[:3]
+	
 	stime = time.time()
 	message = {
 				"method":method,
 				"name":name,
 				"class":clas
 			}	
-	
+	message = json.dumps(message)
 	length = str(len(message))
 	combined = length + '!' + message
 	sock.sendall(combined.encode())
@@ -44,22 +41,25 @@ def send_login(sock, cmd):
 # todo: might need a wrapper to handle when sendall hangs
 # todo: handle login later - (login will have 3 fields)
 def send(sock, cmd):
-	 try:
-		method, arg = cmd.split()[:2]
-	except:
-		pass
-		# dosomething
+
+	
+	method, arg = cmd.split()[:2]
+	'''
+	except UnboundLocalError:
+		return 	
+	except ValueError:
+		pass	
+	'''
 
 	stime = time.time()
 	message = {
 				"method":method,
 				"arg":arg
 			}	
-	
+	message = json.dumps(message)	
 	length = str(len(message))
 	combined = length + '!' + message
 	sock.sendall(combined.encode())
-
 
 
 
