@@ -269,6 +269,7 @@ class game:
             try:
                 msg = dict()
                 msg['msg_type'] = 'update'
+                msg['field'] = 'pStatus'
 
                 values = dict()
                 values['curr_health'] = player.pd['health']
@@ -292,7 +293,7 @@ class game:
         # create message
         msg = dict()
         msg['msg_type'] = 'update'
-        msg['msg_type'] = 'eStatus'
+        msg['field'] = 'eStatus'
         msg['values'] = []
 
         for enemy in self.gd['enemies']:
