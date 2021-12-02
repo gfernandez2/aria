@@ -12,9 +12,6 @@ import re
 
 from game import game
 
-HOST = ''
-PORT = 0
-
 # Network functions
 def marshal(socket, message):
     length = str(len(message))
@@ -76,10 +73,6 @@ def main():
     # accept loop
     while(True):
 
-        # Additional game session logic could go here
-        # - check for defeated enemies
-        # - check player and enemy statuses
-
         curr_time = time.time()
 
         # update name server every min
@@ -116,10 +109,7 @@ def main():
                     # Attempt to parse JSON
                     request = json.loads(client_request)
                     print(request)
-                    try:
-                        player = g.gd['players'][so]
-                    except:
-                        pass
+                    player = g.gd['players'][so]
 
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
@@ -135,31 +125,25 @@ def main():
                     elif request['method'] == 'action':
                         print("action")
                         g.execute_move(request['arg'], player)
-                            
-                # granular exception handling
-                except KeyError as ex:
-                    print("ke")
-                    resp['result'] = 'failure'
-                    resp['exception'] = 'KeyError'
-                    resp['message'] = str(ex).strip("'")
 
-                except re.error as ex:
-                    print("re")
-                    resp['result'] = 'failure'
-                    resp['exception'] = 're.error'
-                    resp['message'] = str(ex).strip("'")
+                except Exception:
+                    continue
 
-                except TypeError as ex:
-                    print("te")
-                    resp['result'] = 'failure'
-                    resp['exception'] = 'TypeError'
-                    resp['message'] = str(ex).strip("'")
+            # Additional game session logic
+            # - check for defeated enemies
+            g.check_enemies()
 
-                except ValueError as ex:
-                    print("ve")
-                    resp['result'] = 'failure'
-                    resp['exception'] = 'ValueError'
-                    resp['message'] = str(ex).strip("'")
+            # - check player and enemy status (effects)
+            check_list = g.gd['players'].values() + g.gd['enemies']
+            for entity in check_list:
+                entity.status_check()
+
+            # - send updates on player and enemy status
+            g.update_player_status()
+            g.update_enemy_status()
+
+            # defeat check - add later
+
 
 
 if __name__ == '__main__':

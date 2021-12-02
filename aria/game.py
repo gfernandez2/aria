@@ -103,7 +103,7 @@ class game:
         # spawn enemies at new location
         self.spawn_enemies()
 
-        return self.broadcast('Your party cautiously walks into the neighboring room.\n')
+        return self.broadcast('Your party cautiously enters the neighboring room.\n')
 
     def spawn_enemies(self):
         curr_loc = self.gd['location']
@@ -139,6 +139,14 @@ class game:
     # requester - player or entity obj
     # for now, single targets are chosen at random
     def execute_move(self, move, requester):
+        resp = ''
+        if isinstance(requester, player):
+            resp += f"Player {requester.pd['name']}"
+        elif isinstance(requester, entity):
+            resp += f"Enemy {requester.ed['name']}"
+
+        resp += f" attempts to use move {move}...\n"
+
         # check if move can be executed
         proceed, msg = requester.move_check(move)
         if not proceed:
@@ -175,18 +183,23 @@ class game:
         mtype = mi['type']
         scale = mi['scale']
         stats = requester.get_stats()
-        resp = ''
-        for target in targets:
-            if mtype == 'physical':
-                msg = target.damage(move, int(stats[1] * (scale/100)))
-            elif mtype == 'magic':
-                msg = target.damage(move, int(stats[3] * (scale/100)))
-            elif mtype == 'status':
-                msg = target.apply_status(move)
-            elif mtype == 'heal':
-                msg = target.heal(move)
-            
-            resp += msg + '\n'
+        if targets:
+            for target in targets:
+                if mtype == 'physical':
+                    msg = target.damage(move, int(stats[1] * (scale/100)))
+                
+                elif mtype == 'magic':
+                    msg = target.damage(move, int(stats[3] * (scale/100)))
+                
+                elif mtype == 'status':
+                    msg = target.apply_status(move)
+                
+                elif mtype == 'heal':
+                    msg = target.heal(move)
+
+                resp += msg + '\n'
+        else:
+            resp += 'But there are no targets!\n'
 
         # remove last newline
         resp = resp[:-1]
@@ -198,22 +211,45 @@ class game:
     # xp calculated by:
     # random int from [ (sum of enemy stats), (sum of enemy stats) * speed stat of player]
     def check_enemies(self):
+        msg = ''
         removal = []
         # check for defeated enemies
         for enemy in self.gd['enemies']:
             #print('Test')
             if enemy.ed['health'] == 0:
                 #print('Defeated enemy detected')
+                msg += f"Enemy {enemy.ed['name']} has been defeated!\n"
                 removal.append(enemy)
+
+                # determine key drop
+                # for now, only drops from difficulty 3 enemies
+                if G.ENEMIES[enemy.ed['class']]['difficulty'] == 3:
+                    drop = random.choices([True, False], weights=[G.KEY_DROP_RATE, 1 - G.KEY_DROP_RATE])[0]
+                    if drop:
+                        msg += f"A key has been dropped!\n"
+                        self.gd['keys'] += 1
+
                 stat_sum = sum(enemy.ed['stats'])
                 # distribute xp reward
                 for player in self.gd['players'].values():
                     pstats = player.get_stats()
-                    player.xp_incr(random.randint(stat_sum, stat_sum * pstats[5]))
+                    xp_amt = random.randint(stat_sum, stat_sum * pstats[5])
+                    level_up, result = player.xp_incr(xp_amt)
+                    if level_up:
+                        msg += result + '\n'
+        
+        # No defeated enemies detected
+        if not removal:
+            return False, {'msg' : 'No enemies'}
+
+        # remove last newline
+        msg = msg[:-1]
 
         # remove enemies
         for enemy in removal:
             self.gd['enemies'].remove(enemy)
+
+        return True, self.broadcast(msg)
 
     # check for defeated status     
     def check_defeat(self):
@@ -222,6 +258,61 @@ class game:
                 return False
 
         return True
+
+    # NETWORK FUNCTIONS
+
+    # update a clients with player status
+    # maybe later - send updates only to clients with 
+    def update_player_status(self):
+        # send status to each player socket
+        for player, socket in self.gd['players'].items():
+            try:
+                msg = dict()
+                msg['msg_type'] = 'update'
+
+                values = dict()
+                values['curr_health'] = player.pd['health']
+                values['max_health'] = player.get_stats()[0]
+                values['level'] = player.pd['level']
+                values['xp'] = player.pd['xp']
+                values['keys'] = self.gd['keys']
+
+                msg['values'] = values
+
+                payload = json.dumps(msg)
+
+                length = str(len(payload))
+                combined = length + '!' + payload
+                socket.sendall(combined.encode('utf-8'))
+            except Exception:
+                continue
+
+    # update cliests with enemy status
+    def update_enemy_status(self):
+        # create message
+        msg = dict()
+        msg['msg_type'] = 'update'
+        msg['msg_type'] = 'eStatus'
+        msg['values'] = []
+
+        for enemy in self.gd['enemies']:
+            temp = dict()
+            temp['class'] = enemy['class']
+            temp['name'] = enemy['name']
+            temp['curr_health'] = enemy['health']
+            temp['max_health'] = player.get_stats()[0]
+            msg['values'].append(temp)
+
+        payload = json.dumps(msg)
+
+        # send message to all player sockets
+        for socket in self.gd['players'].keys():
+            try:
+                length = str(len(payload))
+                combined = length + '!' + payload
+                socket.sendall(combined.encode('utf-8'))
+            except Exception:
+                continue
 
     # simple broadcast for a live feed message
     # message assumed to be a string

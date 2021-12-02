@@ -7,12 +7,18 @@ def main():
     p1 = player('Bobby', 'knight')
     print('Player info:')
     p1.dump()
-    print('Adding 1000 xp')
-    p1.xp_incr(1000)
-    print('Adding 2000 xp')
-    p1.xp_incr(2000)
-    print('Adding 5000 xp')
-    p1.xp_incr(5000)
+    #print('Adding 1000 xp')
+    level_up, msg = p1.xp_incr(1000)
+    if level_up:
+        print(msg)
+    #print('Adding 2000 xp')
+    level_up, msg = p1.xp_incr(2000)
+    if level_up:
+        print(msg)
+    #print('Adding 5000 xp')
+    level_up, msg = p1.xp_incr(5000)
+    if level_up:
+        print(msg)
 
     print('Player info:')
     p1.dump()

@@ -64,7 +64,8 @@ def main():
     print(gd['enemies'])
 
     print('Checking defeated enemies')
-    g.check_enemies()
+    defeated, msg = g.check_enemies()
+    print(msg['msg'])
 
     print('Game data:')
     gd = g.dump()

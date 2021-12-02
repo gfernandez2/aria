@@ -71,7 +71,7 @@ class entity:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return f"{move} on {self.ed['name']} missed!"
+            return f"Move {move} on {self.ed['name']} missed!"
 
         # get status with mods applied         
         mod_stats = self.get_stats()
@@ -83,7 +83,7 @@ class entity:
 
         self.ed['health'] = max(0, self.ed['health'] - dmg)
 
-        return f"{move} on {self.ed['name']} hit for {dmg} damage!"
+        return f"Move {move} on {self.ed['name']} hit for {dmg} damage!"
 
     # Handler for status-type moves
     # applies status move buff/debuff to player
@@ -100,9 +100,9 @@ class entity:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return f"{move} on {self.ed['name']} missed!"
+            return f"Move {move} on {self.ed['name']} missed!"
 
-        resp = f"{move} on {self.ed['name']} succeeded!\n"
+        resp = f"Move {move} on {self.ed['name']} succeeded!\n"
 
         base_mods = move_info['mod']
         new_mods = [0 for _ in range(len(self.ed['stats']))]
@@ -144,15 +144,15 @@ class entity:
     def move_check(self, move):
         # check if entity can use move
         if move not in G.ENEMIES[self.ed['class']]['moves']:
-            return False, f'{move} cannot be used!'
+            return False, f'Move {move} cannot be used!'
 
         # cooldown check
         curr = time.time()
         if curr - self.ed['moves'][move] < G.MOVES[move]['cooldown']:
-            return False, f'{move} still in cooldown!'
+            return False, f'Move {move} still in cooldown!'
 
         self.ed['moves'][move] = curr
-        return True, f'{move} can be used!'
+        return True, f'Move {move} can be used!'
 
     # looks at all currently active status effects
     # if duration is passed, status is removed and effects are reversed

@@ -3,26 +3,56 @@
 
 # Level xp thresholds
 LEVEL_THRESHOLDS = {
-    1  : 50,
-    2  : 100,
-    3  : 200,
-    4  : 350,
-    5  : 550,
-    6  : 850,
-    7  : 1350,
-    8  : 2100,
-    9  : 3100,
-    10 : 4500,
-    11 : 6300,
-    12 : 8300,
-    13 : 10000,
-    14 : 12000,
-    15 : 15000,
-    16 : 19000,
-    17 : 25000,
-    18 : 33000,
-    19 : 45000,
-    20 : 50000
+    1 : 50,
+    2 : 100,
+    3 : 160,
+    4 : 230,
+    5 : 310,
+    6 : 400,
+    7 : 500,
+    8 : 610,
+    9 : 730,
+    10 : 860,
+    11 : 1000,
+    12 : 1160,
+    13 : 1340,
+    14 : 1540,
+    15 : 1790,
+    16 : 2090,
+    17 : 2440,
+    18 : 2840,
+    19 : 3290,
+    20 : 3790,
+    21 : 4390,
+    22 : 5090,
+    23 : 5890,
+    24 : 6790,
+    25 : 7790,
+    26 : 8890,
+    27 : 10390,
+    28 : 11990,
+    29 : 13790,
+    30 : 15790,
+    31 : 17790,
+    32 : 20390,
+    33 : 22990,
+    34 : 25790,
+    35 : 28790,
+    36 : 32000,
+    37 : 35400,
+    38 : 39000,
+    39 : 42800,
+    40 : 46800,
+    41 : 51300,
+    42 : 56300,
+    43 : 61800,
+    44 : 67800,
+    45 : 74300,
+    46 : 81300,
+    47 : 88800,
+    48 : 96800,
+    49 : 105300,
+    50 : 114300
 }
 
 # Stat layout : [HP, ATK, DEF, MAG, RES, LCK]
@@ -78,7 +108,7 @@ CLASSES = {
 # selected randomly from a pool - and this pool changes depending on the room difficulty
 ENEMIES = {
     'goblin' : {
-        'name' : ['Glilx', 'Clokx', 'Vriosb', 'Vrylx', 'Xos', 'Tonrolx', 'Slialkits', 'Haastuizz'
+        'name' : ['Glilx', 'Clokx', 'Vriosb', 'Vrylx', 'Xos', 'Tonrolx', 'Slialkits', 'Haastuizz',
                   'Dubbakt', 'Krukkis', 'Srig', 'Krield', 'Ukx', 'Treang', 'Briz', 'Pryvigz',
                   'Plolkirm', 'Blegtecs', 'Zrysdoirk', 'Tebalb', 'Aags', 'Glaz', 'Beesz', 'Krir',
                   'Bruing', 'Voidfez', 'Agmets', 'Praazuts', 'Strozgix', 'Ioggox', 'Clet', 'Chakt',
@@ -234,4 +264,5 @@ MOVES = {
 # Game globals
 DUNGEON_SIZE = 11
 KEYS_REQUIRED = 3
+KEY_DROP_RATE = 25
 SPAWN_RATE = 45

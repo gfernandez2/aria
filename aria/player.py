@@ -55,7 +55,9 @@ class player:
     # increment player xp by n
     def xp_incr(self, n):
         self.pd['xp'] += n
-        return self.level_check()
+        msg = f"Player {self.pd['name']} gained {n} xp!\n"
+        level_up, result = self.level_check()
+        return level_up, msg + result
 
     # sets level according to player xp
     def level_check(self):
@@ -67,8 +69,6 @@ class player:
                 new_lvl = level
 
         if new_lvl != prev_lvl:
-            # TODO: Broadcast level up messages
-            print(f"Player {self.pd['name']} has reached level {new_lvl}")
             self.pd['level'] = new_lvl
             # get current health ratio
             hp_scale = self.pd['health']/self.pd['stats'][0]
@@ -76,9 +76,9 @@ class player:
             self.stat_roll(new_lvl - prev_lvl)
             # scale health
             self.pd['health'] = int(hp_scale * self.pd['stats'][0])
-            return True
+            return True, f"Player {self.pd['name']} has reached level {new_lvl}!"
 
-        return False
+        return False, ''
 
     # initiaite stat up k times, depending on class stat spread probability
     def stat_roll(self, k):
@@ -106,7 +106,7 @@ class player:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return f"{move} on {self.pd['name']} missed!"
+            return f"Move {move} on {self.pd['name']} missed!"
 
         # get status with mods applied         
         mod_stats = self.get_stats()
@@ -118,7 +118,7 @@ class player:
 
         self.pd['health'] = max(0, self.pd['health'] - dmg)
 
-        return f"{move} on {self.pd['name']} hit for {dmg} damage!"
+        return f"Move {move} on {self.pd['name']} hit for {dmg} damage!"
     
     # Handler for status-type moves
     # applies status move buff/debuff to player
@@ -135,9 +135,9 @@ class player:
         hit = random.choices([True, False], weights=[chance, 100-chance])[0]
 
         if not hit:
-            return f"{move} on {self.pd['name']} missed!"
+            return f"Move {move} on {self.pd['name']} missed!"
 
-        resp = f"{move} on {self.pd['name']} succeeded!\n"
+        resp = f"Move {move} on {self.pd['name']} succeeded!\n"
 
         base_mods = move_info['mod']
         new_mods = [0 for _ in range(len(self.pd['stats']))]
@@ -193,15 +193,15 @@ class player:
     def move_check(self, move):
         # check if player can use move
         if move not in G.CLASSES[self.pd['class']]['moves']:
-            return False, f'{move} cannot be used!'
+            return False, f'Move {move} cannot be used!'
 
         # cooldown check
         curr = time.time()
         if curr - self.pd['moves'][move] < G.MOVES[move]['cooldown']:
-            return False, f'{move} still in cooldown!'
+            return False, f'Move {move} still in cooldown!'
 
         self.pd['moves'][move] = curr
-        return True, f'{move} can be used!'
+        return True, f'Move {move} can be used!'
 
     # looks at all currently active status effects
     # if duration is passed, status is removed and effects are reversed
