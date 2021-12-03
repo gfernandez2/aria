@@ -109,7 +109,10 @@ def main():
                     # Attempt to parse JSON
                     request = json.loads(client_request)
                     print(request)
-                    player = g.gd['players'][so]
+                    try:
+                        player = g.gd['players'][so]
+                    except:
+                        pass 
 
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
@@ -125,22 +128,28 @@ def main():
                     elif request['method'] == 'action':
                         print("action")
                         g.execute_move(request['arg'], player)
+                    else:
+                        print("here")
+	
 
                 except Exception:
+                    print("exception")
                     continue
 
             # Additional game session logic
             # - check for defeated enemies
+            
             g.check_enemies()
 
             # - check player and enemy status (effects)
-            check_list = g.gd['players'].values() + g.gd['enemies']
+            check_list = list(g.gd['players'].values()) + g.gd['enemies']
             for entity in check_list:
                 entity.status_check()
 
             # - send updates on player and enemy status
             g.update_player_status()
             g.update_enemy_status()
+			
 
             # defeat check - add later
 
