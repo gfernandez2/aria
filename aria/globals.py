@@ -228,8 +228,23 @@ ENEMIES = {
 
 # Includes player and enemy moves
 MOVES = {
-    'strike'    : {'cooldown' : 3,  'chance' : 95, 'type' : 'physical', 'target' : 'single', 'side' : 'enemy', 'scale' : 100},
-    'guard'     : {'cooldown' : 15, 'chance' : 45, 'type' : 'status',   'target' : 'self',   'side' : 'player','scale' : 30, 'duration' : 10, 'mod' : [0, 0, 1, 0, 0, 0]},
+    'strike'    : {
+        'cooldown' : 3,  
+        'chance' : 95, 
+        'type' : 'physical', 
+        'target' : 'single', 
+        'side' : 'enemy', 
+        'scale' : 100
+    },
+    'guard'     : {
+        'cooldown' : 15, 
+        'chance' : 45, 
+        'type' : 'status',   
+        'target' : 'self',   
+        'side' : 'player','scale' : 30, 
+        'duration' : 10, 
+        'mod' : [0, 0, 1, 0, 0, 0]
+    },
     'multislash': {'cooldown' : 180,'chance' : 85, 'type' : 'physical', 'target' : 'all',    'side' : 'enemy', 'scale' : 150},
     'blast'     : {'cooldown' : 3,  'chance' : 95, 'type' : 'magic',    'target' : 'single', 'side' : 'enemy', 'scale' : 120},
     'miasma'    : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'all',    'side' : 'enemy', 'scale' : 20, 'duration' : 40, 'mod' : [0, 0, -1, 0, -1, 0]},
@@ -262,7 +277,7 @@ MOVES = {
 # Equipment characteristics goes here
 
 # Game globals
-DUNGEON_SIZE = 11
+DUNGEON_SIZE = 2
 KEYS_REQUIRED = 3
 KEY_DROP_RATE = 25
 SPAWN_RATE = 45
