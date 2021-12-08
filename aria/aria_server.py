@@ -71,7 +71,7 @@ def main():
 
     sock_list = [s] # list for select operation (concurrency)
     
-    send_name(s.getsockname()[1], 'aria') # update name server (first time)
+    send_name(s.getsockname()[1], 'aria-game') # update name server (first time)
     update_time = time.time() # use for timekeeping for sending name server update
 
 
@@ -93,7 +93,7 @@ def main():
 
         # update name server every min
         if (curr_time - update_time) > 60:
-            send_name(s.getsockname()[1], "aria-game")
+            send_name(s.getsockname()[1], 'aria-game')
             print('Sent update to name server')
             update_time = time.time()
 
@@ -102,11 +102,8 @@ def main():
         # connection loop
         for so in read_list:
 
-            #print('Processing socket', so.getsockname()[1])
-
             if so is s and not start:
                 conn, addr = so.accept()
-                #so.setblocking(0)
                 print("connection")
                 sock_list.append(conn)
 
@@ -129,7 +126,7 @@ def main():
                     try:
                         player = g.gd['players'][so]
                     except:
-                        pass 
+                        continue
 
 
                     # Execute requested method
@@ -161,14 +158,14 @@ def main():
                                     sock_list.remove(sock)
                                 del g
                                 new_game = True
-                                #sock_list = [s] 
                             
                             # child - continue playing game session
                             else:
                                 start = True
                                 forked = True
                                 g.broadcast('The game has started. Best of luck, adventurers!\n')
-                                sock_list.remove(s)
+                                sock_list = self.gd['players'].keys()
+                                enemy_move_time = time.time()
                     else:
                         continue
 
@@ -179,8 +176,10 @@ def main():
 
             # Additional game session logic (if game has started)
             if start:
-                # - check for defeated enemies
+                # - check for defeated enemies and players
+                # - if leader is defeated, new leader is chosen
                 g.check_enemies()
+                g.check_players()
 
                 # - check player and enemy status (effects)
                 check_list = list(g.gd['players'].values()) + g.gd['enemies']
@@ -193,16 +192,26 @@ def main():
 
                 # win check
                 if g.gd['win'] == True:
-                    g.broadcast('The final boss has been vanquished. Congratulations!\n')
+                    g.broadcast('The final boss has been vanquished. Congratulations, and thank you for playing!\n')
                     time.sleep(5)
+                    for socket in sock_list:
+                        socket.close()
                     return 
 
                 # defeat check
                 if g.check_defeat() == True:
                     g.broadcast('By the goddess, all players have been defeated. Who will save us now?\n')
-                    return 
+                    time.sleep(5)
+                    for socket in sock_list:
+                        socket.close()
+                    return
 
-
+                # enemy movement - choose random enemy and random move, attempt to execute
+                if (time.time() - enemy_move_time) > random.choice(range(20, 30)):
+                    enemy_to_move = random.choice(self.gd['enemies'])
+                    random_move = random.choice(enemy_to_move['moves'])
+                    g.execute_move(random_move, enemy_to_move)
+                    enemy_move_time = time.time()
 
 
 if __name__ == '__main__':

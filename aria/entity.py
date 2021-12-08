@@ -23,8 +23,9 @@ class entity:
         # get base stats
         self.ed['name'] = random.choice(ent_info['name'])
         self.ed['stats'] = ent_info['base']
+
         # bonus stat rolls
-        self.stat_roll(scale*2)
+        self.stat_roll(int(scale*1.2))
 
         # maps move to time last used (for cooldown check)
         self.ed['moves'] = dict()
@@ -49,12 +50,16 @@ class entity:
     def stat_roll(self, k):
         # get stat spread
         stat_spread = G.ENEMIES[self.ed['class']]['spread']
+
         # k times, each stat has chance to incr by 1 based on stat spread
         for _ in range(k):
             for i in range(len(self.ed['stats'])):
                 chance = stat_spread[i]
                 incr = random.choices([1, 0], weights=[100, 100-chance])[0]
                 self.ed['stats'][i] += incr
+
+        # if HP increased, set health to new maximum
+        self.ed['health'] = self.ed['stats'][0]
     
     # Handler for phys/mag type moves
     # inflict damage on player

@@ -51,10 +51,10 @@ class game:
 
         return self.broadcast(f'Player {name} successfully joined the party. Welcome!\n')
 
-
     def remove_player(self, socket):
+        socket.close()
         del self.gd['players'][socket]
-        return True
+        return
 
     def generate_dungeon(self):
         for i in range(G.DUNGEON_SIZE):
@@ -148,7 +148,7 @@ class game:
         elif isinstance(requester, entity):
             resp += f"Enemy {requester.ed['name']}"
 
-        resp += f" attempts to use move {move}...\n\n"
+        resp += f" attempts to use move {move}...\n"
 
         # check if move can be executed
         proceed, msg = requester.move_check(move)
@@ -218,9 +218,7 @@ class game:
         removal = []
         # check for defeated enemies
         for enemy in self.gd['enemies']:
-            #print('Test')
             if enemy.ed['health'] == 0:
-                #print('Defeated enemy detected')
                 msg += f"Enemy {enemy.ed['name']} has been defeated!\n"
                 removal.append(enemy)
 
@@ -245,7 +243,6 @@ class game:
         if not removal:
             return False, {'msg' : 'No enemies'}
 
-
         # remove enemies
         for enemy in removal:
             if enemy.ed['class'] == 'demon_king':
@@ -257,6 +254,43 @@ class game:
         msg = msg[:-1]
 
         return True, self.broadcast(msg)
+
+    # checks for defeated players
+    # if player has been defeated, they are removed from game session
+    def check_players(self):
+        msg = ''
+        removal = []
+        # check for defeated enemies
+        for socket, player in self.gd['players'].items():
+            if player.pd['health'] == 0:
+                msg += f"Player {player.pd['name']} has been defeated!\n"
+                removal.append(so)
+
+        # No defeated players detected
+        if not removal:
+            return False, {'msg' : 'No players'}
+
+        # remove enemies
+        for socket in removal:
+            socket.close()
+            del self.gd['players'][socket]
+
+        # remove last newline
+        msg = msg[:-1]
+
+        return True, self.broadcast(msg)
+
+    def check_leader(self):
+        # check if leader exists
+        for player in self.gd['players'].values():
+            if player.pd['leader'] == True:
+                return True, {'msg' : 'Leader still exists'}
+
+        # if not, elect new leader
+        new_leader = random.choice(self.gd['players'].values())
+        new_leader.pd['leader'] = True
+
+        return True, self.broadcast(f"Player {new_leader.pd['name']} has been made leader!\n")
 
     # check for defeated status     
     def check_defeat(self):
