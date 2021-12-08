@@ -122,7 +122,12 @@ def main():
                     # Attempt to parse JSON
                     request = json.loads(client_request)
                     print(request)
-                    # player = g.gd['players'][so]
+                    
+                    try:
+                        player = g.gd['players'][so]
+                    except:
+                        pass 
+
 
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
@@ -138,6 +143,9 @@ def main():
                     elif request['method'] == 'action' and start:
                         print("action")
                         g.execute_move(request['arg'], player)
+                    else:
+                        print("here")
+	
 
                     elif request['method'] == 'start':
                         print("start")
@@ -160,6 +168,7 @@ def main():
 
 
                 except Exception:
+                    print("exception")
                     continue
 
             # Additional game session logic (if game has started)

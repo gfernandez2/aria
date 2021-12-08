@@ -149,7 +149,7 @@ class game:
         elif isinstance(requester, entity):
             resp += f"Enemy {requester.ed['name']}"
 
-        resp += f" attempts to use move {move}...\n"
+        resp += f" attempts to use move {move}...\n\n"
 
         # check if move can be executed
         proceed, msg = requester.move_check(move)
@@ -272,29 +272,30 @@ class game:
     # update a clients with player status
     def update_player_status(self):
         # send status to each player socket
-        for player, socket in self.gd['players'].items():
+        for socket, player in self.gd['players'].items():
             try:
                 msg = dict()
                 msg['clock'] = self.gd['clock']
                 self.gd['clock'] += 1
                 msg['msg_type'] = 'update'
                 msg['field'] = 'pStatus'
-
+                
                 values = dict()
                 values['curr_health'] = player.pd['health']
                 values['max_health'] = player.get_stats()[0]
                 values['level'] = player.pd['level']
                 values['xp'] = player.pd['xp']
                 values['keys'] = self.gd['keys']
-
+                
                 msg['values'] = values
-
+                
                 payload = json.dumps(msg)
 
                 length = str(len(payload))
                 combined = length + '!' + payload
                 socket.sendall(combined.encode('utf-8'))
-            except Exception:
+            except Exception as e:
+                print(e)
                 continue
 
     # update cliests with enemy status
@@ -307,10 +308,10 @@ class game:
 
         for enemy in self.gd['enemies']:
             temp = dict()
-            temp['class'] = enemy['class']
-            temp['name'] = enemy['name']
-            temp['curr_health'] = enemy['health']
-            temp['max_health'] = player.get_stats()[0]
+            temp['class'] = enemy.ed['class']
+            temp['name'] = enemy.ed['name']
+            temp['curr_health'] = enemy.ed['health']
+            temp['max_health'] = enemy.get_stats()[0]
             msg['values'].append(temp)
 
         payload = json.dumps(msg)
