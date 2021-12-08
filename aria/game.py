@@ -39,7 +39,6 @@ class game:
             self.gd['win'] = False
 
     def add_player(self, socket, name, pclass):
-        # TODO: loading pre-existing player data
         # if full, reject
         if len(self.gd['players']) == 4:
             return self.broadcast('Player {name} can\'t join! There are currently 4 players in the party.\n')
@@ -93,7 +92,7 @@ class game:
         elif direction == 'e' and curr_loc[1] + 1 < G.DUNGEON_SIZE:
             mod_loc[1] += 1
         elif direction == 's' and curr_loc[0] + 1 < G.DUNGEON_SIZE:
-            mod_loc[1] += 1
+            mod_loc[0] += 1
         else:
             return self.broadcast('There\'s no door there! Confused, your party stays where it is.\n')
 
@@ -131,7 +130,7 @@ class game:
             enemy_names = [i[0] for i in possible_enemies]
             enemy_rates = [i[1] for i in possible_enemies]
 
-            # spawn enemies
+            # spawn enemies 
             for _ in range(difficulty):
                 will_spawn = random.choices([True, False], weights=[spawn_rate, 100 - spawn_rate])[0]
                 if will_spawn:
@@ -262,7 +261,7 @@ class game:
     # check for defeated status     
     def check_defeat(self):
         for p in self.gd['players'].values():
-            if p.get_health() > 0:
+            if p.pd["health"] > 0:
                 return False
 
         return True
@@ -333,15 +332,16 @@ class game:
         resp = dict()
         resp['msg_type'] = 'broadcast'
         resp['msg'] = message
-        payload = json.dumps(resp)
         # send message to all player sockets
         for socket in self.gd['players'].keys():
             try:
-                msg['clock'] = self.gd['clock']
+                resp['clock'] = self.gd['clock']
                 self.gd['clock'] += 1
+                payload = json.dumps(resp)
                 length = str(len(payload))
                 combined = length + '!' + payload
                 socket.sendall(combined.encode('utf-8'))
+                sent.append(socket)
             except Exception:
                 continue
 

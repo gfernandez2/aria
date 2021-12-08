@@ -5,6 +5,8 @@ import signal
 import time
 import json
 
+import graphics as g 
+
 def handler(signum, frame):
     pass
 
@@ -34,7 +36,7 @@ def send_login(sock, cmd):
     message = json.dumps(message)
     length = str(len(message))
     combined = length + '!' + message
-    sock.sendall(combined.encode())
+    sock.sendall(combined.encode('utf-8'))
 
 
 # send a message and its length to the game server
@@ -52,8 +54,7 @@ def send(sock, cmd):
     message = json.dumps(message)   
     length = str(len(message))
     combined = length + '!' + message
-    sock.sendall(combined.encode())
-
+    sock.sendall(combined.encode('utf-8'))
 
 
 # recieve a message from the game server

@@ -10,6 +10,9 @@ import json
 import time
 import re
 import os
+import traceback
+import sys
+import pwd
 
 from game import game
 
@@ -27,7 +30,7 @@ def unmarshal(socket):
         buf += d
 
     length = buf[0:len(buf)-1]
-
+    print("length; " + length)
     data = socket.recv(int(length))
     while(len(data) < int(length)):
         data += socket.recv(int(length))
@@ -44,7 +47,7 @@ def send_name(port, name):
 
     info = {}
     info['type'] = 'game'
-    info['owner'] = 'gfernan2'
+    info['owner'] = pwd.getpwuid(os.getuid())[0]
     info['port'] = port
     info['project'] = name
 
@@ -68,7 +71,7 @@ def main():
 
     sock_list = [s] # list for select operation (concurrency)
     
-    #send_name(s.getsockname()[1], 'aria') # update name server (first time)
+    send_name(s.getsockname()[1], 'aria') # update name server (first time)
     update_time = time.time() # use for timekeeping for sending name server update
 
 
@@ -90,8 +93,8 @@ def main():
 
         # update name server every min
         if (curr_time - update_time) > 60:
-            #send_name(s.getsockname()[1], project_name)
-            #print('Sent update to name server')
+            send_name(s.getsockname()[1], "aria-game")
+            print('Sent update to name server')
             update_time = time.time()
 
         read_list, write_list, err_list = select.select(sock_list, [], [], 0.5)
@@ -101,7 +104,7 @@ def main():
 
             #print('Processing socket', so.getsockname()[1])
 
-            if so is s:
+            if so is s and not start:
                 conn, addr = so.accept()
                 #so.setblocking(0)
                 print("connection")
@@ -143,8 +146,7 @@ def main():
                     elif request['method'] == 'action' and start:
                         print("action")
                         g.execute_move(request['arg'], player)
-                    else:
-                        print("here")
+  
 	
 
                     elif request['method'] == 'start':
@@ -155,20 +157,24 @@ def main():
                             
                             # parent - reset game session
                             if pid > 0:
+                                for sock in g.gd['players'].keys():
+                                    sock_list.remove(sock)
                                 del g
                                 new_game = True
+                                #sock_list = [s] 
                             
                             # child - continue playing game session
                             else:
                                 start = True
                                 forked = True
                                 g.broadcast('The game has started. Best of luck, adventurers!\n')
+                                sock_list.remove(s)
                     else:
                         continue
 
 
-                except Exception:
-                    print("exception")
+                except Exception as ex:
+                    traceback.print_exception(*sys.exc_info())
                     continue
 
             # Additional game session logic (if game has started)
@@ -177,7 +183,7 @@ def main():
                 g.check_enemies()
 
                 # - check player and enemy status (effects)
-                check_list = g.gd['players'].values() + g.gd['enemies']
+                check_list = list(g.gd['players'].values()) + g.gd['enemies']
                 for entity in check_list:
                     entity.status_check()
 
