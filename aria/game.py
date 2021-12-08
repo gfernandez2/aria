@@ -67,7 +67,7 @@ class game:
     # sets scaling factor to average lvl of players
     def scale(self):
         if self.gd['players']:
-            lvl_sum = sum(p['level'] for p in self.gd['players'].values())
+            lvl_sum = sum(p.pd['level'] for p in self.gd['players'].values())
             self.gd['scale'] = lvl_sum/len(self.gd['players'])
         else:
             self.gd['scale'] = 1
@@ -164,8 +164,8 @@ class game:
             # get move info
             mi = G.MOVES[move]
             targets = []
-            players = self.gd['players'].values()
-            enemies = self.gd['enemies']
+            players = list(self.gd['players'].values())
+            enemies = list(self.gd['enemies'])
 
             # determine target
             # self targets are only status-type moves

@@ -30,7 +30,6 @@ def unmarshal(socket):
         buf += d
 
     length = buf[0:len(buf)-1]
-    print("length; " + length)
     data = socket.recv(int(length))
     while(len(data) < int(length)):
         data += socket.recv(int(length))
@@ -94,7 +93,7 @@ def main():
         # update name server every min
         if (curr_time - update_time) > 60:
             send_name(s.getsockname()[1], 'aria-game')
-            print('Sent update to name server')
+            #print('Sent update to name server')
             update_time = time.time()
 
         read_list, write_list, err_list = select.select(sock_list, [], [], 0.5)
@@ -121,33 +120,31 @@ def main():
 
                     # Attempt to parse JSON
                     request = json.loads(client_request)
-                    print(request)
+                    #print(request)
                     
                     try:
                         player = g.gd['players'][so]
                     except:
-                        continue
+                        pass 
 
 
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
                     if request['method'] == 'login':
-                        print("login")
+                        #print("login")
                         g.add_player(so, request['name'], request['class'])
                 
                     elif request['method'] == 'move' and start:
-                        print("move")
+                        #print("move")
                         if g.gd['players'][so].pd['leader'] == True: # only leader allowed to request movement of party
                             g.move_party(request['arg'])
                 
                     elif request['method'] == 'action' and start:
-                        print("action")
-                        g.execute_move(request['arg'], player)
-  
-	
+                        #print("action")
+                        g.execute_move(request['arg'], player)	
 
                     elif request['method'] == 'start':
-                        print("start")
+                        #print("start")
                         if g.gd['players'][so].pd['leader'] == True and forked == False: # only leader allowed to start game session (once)
                             # fork
                             pid = os.fork()
@@ -164,14 +161,14 @@ def main():
                                 start = True
                                 forked = True
                                 g.broadcast('The game has started. Best of luck, adventurers!\n')
-                                sock_list = self.gd['players'].keys()
+                                sock_list = g.gd['players'].keys()
                                 enemy_move_time = time.time()
                     else:
                         continue
 
 
                 except Exception as ex:
-                    traceback.print_exception(*sys.exc_info())
+                    #traceback.print_exception(*sys.exc_info())
                     continue
 
             # Additional game session logic (if game has started)
@@ -197,22 +194,22 @@ def main():
                 if g.gd['win'] == True:
                     g.broadcast('The final boss has been vanquished. Congratulations, and thank you for playing!\n')
                     time.sleep(5)
-                    for socket in sock_list:
-                        socket.close()
+                    for x in sock_list:
+                        x.close()
                     return 
 
                 # defeat check
                 if g.check_defeat() == True:
                     g.broadcast('By the goddess, all players have been defeated. Who will save us now?\n')
                     time.sleep(5)
-                    for socket in sock_list:
-                        socket.close()
+                    for x in sock_list:
+                        x.close()
                     return
 
                 # enemy movement - choose random enemy and random move, attempt to execute
-                if (time.time() - enemy_move_time) > random.choice(range(20, 30)):
-                    enemy_to_move = random.choice(self.gd['enemies'])
-                    random_move = random.choice(enemy_to_move['moves'])
+                if (time.time() - enemy_move_time) > random.choice(range(20, 30)) and g.gd['enemies']:
+                    enemy_to_move = random.choice(g.gd['enemies'])
+                    random_move = random.choice(list(enemy_to_move.ed['moves'].keys()))
                     g.execute_move(random_move, enemy_to_move)
                     enemy_move_time = time.time()
 

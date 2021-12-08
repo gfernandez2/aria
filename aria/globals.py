@@ -128,7 +128,7 @@ ENEMIES = {
                   'Thomas', 'Harry', 'Ben'
                  ],
         'difficulty' : 1,
-        'base'   : [90, 5, 5, 5, 5, 2],
+        'base'   : [20, 5, 5, 5, 5, 2],
         'spread' : [85, 10, 10, 10, 10, 5],
         'moves'  : ['bounce'],
         'rate'   : 60
@@ -238,7 +238,7 @@ MOVES = {
     'enhance'   : {'cooldown' : 60, 'chance' : 45, 'type' : 'status',   'target' : 'single', 'side' : 'player','scale' : 30, 'duration' : 50, 'mod' : [0, 1, 0, 1, 0, 0]},
     'refresh'   : {'cooldown' : 150,'chance' : 100,'type' : 'heal',     'target' : 'all',    'side' : 'player','scale' : 50},
     'bash'      : {'cooldown' : 10, 'chance' : 80, 'type' : 'physical', 'target' : 'single', 'side' : 'enemy', 'scale' : 60},
-    'shield'    : {'cooldown' : 75, 'chance' : 65, 'type' : 'status',   'target' : 'self',   'side' : 'player','scale' : 50, 'duration' : 60, 'mod' : [0, 0, 1, 0, 1, 0]},
+    'shield'    : {'cooldown' : 75, 'chance' : 65, 'type' : 'status',   'target' : 'all',    'side' : 'player','scale' : 50, 'duration' : 60, 'mod' : [0, 0, 1, 0, 1, 0]},
     'bastion'   : {'cooldown' : 200,'chance' : 95, 'type' : 'physical', 'target' : 'all',    'side' : 'enemy', 'scale' : 80},
 
     'jab'       : {'cooldown' : 15, 'chance' : 60, 'type' : 'physical', 'target' : 'single', 'side' : 'player','scale' : 60},
