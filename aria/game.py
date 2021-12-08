@@ -34,6 +34,10 @@ class game:
 
             self.gd['enemies'] = [] # holds enemies at current location
 
+            self.gd['clock'] = 0 # logical clock for messages, used by client to maintain causually consistent ordering
+
+            self.gd['win'] = False
+
     def add_player(self, socket, name, pclass):
         # TODO: loading pre-existing player data
         # if full, reject
@@ -242,12 +246,16 @@ class game:
         if not removal:
             return False, {'msg' : 'No enemies'}
 
-        # remove last newline
-        msg = msg[:-1]
 
         # remove enemies
         for enemy in removal:
+            if enemy.ed['class'] == 'demon_king':
+                self.gd['win'] = True
+
             self.gd['enemies'].remove(enemy)
+
+        # remove last newline
+        msg = msg[:-1]
 
         return True, self.broadcast(msg)
 
@@ -262,12 +270,13 @@ class game:
     # NETWORK FUNCTIONS
 
     # update a clients with player status
-    # maybe later - send updates only to clients with 
     def update_player_status(self):
         # send status to each player socket
         for player, socket in self.gd['players'].items():
             try:
                 msg = dict()
+                msg['clock'] = self.gd['clock']
+                self.gd['clock'] += 1
                 msg['msg_type'] = 'update'
                 msg['field'] = 'pStatus'
 
@@ -309,6 +318,8 @@ class game:
         # send message to all player sockets
         for socket in self.gd['players'].keys():
             try:
+                msg['clock'] = self.gd['clock']
+                self.gd['clock'] += 1
                 length = str(len(payload))
                 combined = length + '!' + payload
                 socket.sendall(combined.encode('utf-8'))
@@ -325,6 +336,8 @@ class game:
         # send message to all player sockets
         for socket in self.gd['players'].keys():
             try:
+                msg['clock'] = self.gd['clock']
+                self.gd['clock'] += 1
                 length = str(len(payload))
                 combined = length + '!' + payload
                 socket.sendall(combined.encode('utf-8'))

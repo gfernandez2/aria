@@ -9,6 +9,7 @@ import struct
 import json
 import time
 import re
+import os
 
 from game import game
 
@@ -70,8 +71,20 @@ def main():
     #send_name(s.getsockname()[1], 'aria') # update name server (first time)
     update_time = time.time() # use for timekeeping for sending name server update
 
+
+    # conditions used to reset server once a game session has been forked
+    new_game = False
+    forked = False
+    start = False
+
     # accept loop
     while(True):
+
+        if new_game:
+            # re-initialize game
+            game_id = random.randint(1000000, 9999999)
+            g = game(game_id)
+            new_game = False
 
         curr_time = time.time()
 
@@ -99,7 +112,10 @@ def main():
 
                 try:
                     # Get request JSON
-                    client_request = unmarshal(so)
+                    client_r                        print("move")
+                        if g.gd['players'][so].pd['leader'] == True:
+                            g.move_party(request['arg'])
+equest = unmarshal(so)
                     if client_request is None: # connection closed by client
                         so.close()
                         g.remove_player(so)
@@ -117,32 +133,63 @@ def main():
                         print("login")
                         g.add_player(so, request['name'], request['class'])
                 
-                    elif request['method'] == 'move':
+                    elif request['method'] == 'move' and start:
                         print("move")
-                        if g.gd['players'][so].pd['leader'] == True:
+                        if g.gd['players'][so].pd['leader'] == True: # only leader allowed to request movement of party
                             g.move_party(request['arg'])
                 
-                    elif request['method'] == 'action':
+                    elif request['method'] == 'action' and start:
                         print("action")
                         g.execute_move(request['arg'], player)
+
+                    elif request['method'] == 'start':
+                        print("start")
+                        if g.gd['players'][so].pd['leader'] == True and forked == False: # only leader allowed to start game session (once)
+                            # fork
+                            pid = os.fork()
+                            
+                            # parent - reset game session
+                            if pid > 0:
+                                del g
+                                new_game = True
+                            
+                            # child - continue playing game session
+                            else:
+                                start = True
+                                forked = True
+                                g.broadcast('The game has started. Best of luck, adventurers!\n')
+                    else:
+                        continue
+
 
                 except Exception:
                     continue
 
-            # Additional game session logic
-            # - check for defeated enemies
-            g.check_enemies()
+            # Additional game session logic (if game has started)
+            if start:
+                # - check for defeated enemies
+                g.check_enemies()
 
-            # - check player and enemy status (effects)
-            check_list = g.gd['players'].values() + g.gd['enemies']
-            for entity in check_list:
-                entity.status_check()
+                # - check player and enemy status (effects)
+                check_list = g.gd['players'].values() + g.gd['enemies']
+                for entity in check_list:
+                    entity.status_check()
 
-            # - send updates on player and enemy status
-            g.update_player_status()
-            g.update_enemy_status()
+                # - send updates on player and enemy status
+                g.update_player_status()
+                g.update_enemy_status()
 
-            # defeat check - add later
+                # win check
+                if g.gd['win'] == True:
+                    g.broadcast('The final boss has been vanquished. Congratulations!\n')
+                    time.sleep(5)
+                    return 
+
+                # defeat check
+                if g.check_defeat() == True:
+                    g.broadcast('By the goddess, all players have been defeated. Who will save us now?\n')
+                    return 
+
 
 
 
