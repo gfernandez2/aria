@@ -13,25 +13,53 @@ import graphics as g
 
 def main(stdscr):
     #screen = curses.initscr()
+    
     # connect to game server    
     socket = net.connect(sys.argv[1], sys.argv[2])
     sockArr = []
     sockArr.append(socket)
+    
+    ''' 
+    c = http.client.HTTPConnection("catalog.cse.nd.edu", 9097)
+	c.connect()
+	c.request("GET", "/query.json")
+	response = c.getresponse()
+	c.close()
+	
+	matches = []
+	try:
+		for item in json.loads(response.read()):
+			if "project" in str(item):
+				if item['type'] == "hashtable" and hostname in str(item['project']):
+					matches.append([item['address'], item['port'], item['lastheardfrom']])
+	except:
+		print("not found")
+		return
+    
+    matches.sort(key=lambda x: x[2], reverse=True)
+    socket = net.connect(matches[0][0], matches[0][1])
+    sockArr = []
+    sockArr.append(socket)
+    '''
 
     # launch curses window
     rows, cols = g.get_window_size()
     g.launch_graphics(rows, cols)
 
-    ackArr = []
-  
+    # client logical clock
+    clock = 0
+ 
+    # get username and class, and login to game
     while True:
         res = g.get_input()
-        if res is not None:
-            net.send_login(socket, str(res))
-            break
+        if res:
+            if len(res.split()) == 3:
+                if len(res.split()[1]) < 10:
+                    net.send_login(socket, str(res))
+                    break
 
     # main loop
-    # we do three things on each loop iteration:
+    # we do two things on each loop iteration:
     #
     # 1. listen for messages from the game server
     #    we listen using "select," which we make (virtually) non-blocking by
@@ -45,36 +73,30 @@ def main(stdscr):
 
         r = select.select(sockArr, [], [], 0.01)[0]
 
-        for sock in r:
+        for sock in r:        
             data = net.recv(sock)
             data = json.loads(data)
 
-            try:
-                resp = data["msg_type"]
-            except:
-                # dosomething
-                pass
-           
+            resp = data["msg_type"]
+                
             if resp == "update":
                 if data["field"] == "pStatus":
-                    g.update_pStatus(data["values"])# split by fields?
-                 
+                    g.update_pStatus(data["values"])                 
+                   
                 elif data["field"] == "eStatus":
                     g.update_eStatus(data["values"])
-                    g.update_graphics(data["values"])
-                
-            
+                    g.update_graphics(data["values"])             
+        
             elif resp == "broadcast":
-                g.update_feed(data["msg"]) 
-
+                g.update_feed(data["msg"])
+                #if data["clock"] > clock: 
+                    #g.update_feed(data["msg"]) 
+                    #clock = data["clock"]
                     
         res = g.get_input()
-        if res is not None:
+        if res:
             net.send(socket, str(res))
-        
-    
-    # need a clean disconnect sequence
-    #res = net.send(socket, "disconnect")
+                   
     curses.endwin()
 
 #if __name__ == "__main__":
