@@ -44,10 +44,6 @@ class player:
             # status modifiers
             self.pd['mods'] = [0 for _ in range(len(self.pd['stats']))]
 
-            # inventory - 2 free potions
-            self.pd['items'] = {'potions' : 2}
-            self.pd['weapon'] = None
-
     # returns current stats (with mods applied)
     def get_stats(self):
         return [max(0, sum(i)) for i in zip(self.pd['stats'], self.pd['mods'])]

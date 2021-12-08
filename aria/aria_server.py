@@ -176,6 +176,9 @@ def main():
 
             # Additional game session logic (if game has started)
             if start:
+                # - upate difficulty scale (based on average level of the party)
+                g.scale()
+
                 # - check for defeated enemies and players
                 # - if leader is defeated, new leader is chosen
                 g.check_enemies()
