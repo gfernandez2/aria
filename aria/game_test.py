@@ -4,7 +4,6 @@ from game import game
 from entity import entity
 import random
 import time
-from pprint import pprint
 
 def main():
     # Initialize game
@@ -13,7 +12,7 @@ def main():
     g = game(game_id)
     print('Game data:')
     gd = g.dump()
-    print(pprint(gd))
+    print(gd)
 
     # Add players
     # for testing uses strings instead of socket objects
@@ -30,7 +29,7 @@ def main():
         g.spawn_enemies()
     print('Game data:')
     gd = g.dump()
-    print(pprint(gd['enemies']))
+    print(gd['enemies'])
 
     print('Leveling players')
     for player in players.values():
@@ -38,7 +37,7 @@ def main():
 
     print('Game data:')
     gd = g.dump()
-    print(pprint(gd))
+    print(gd['players'])
 
     print('Executing move=miasma from player2')
     result = g.execute_move('miasma', players['player2'])

@@ -112,10 +112,7 @@ def main():
 
                 try:
                     # Get request JSON
-                    client_r                        print("move")
-                        if g.gd['players'][so].pd['leader'] == True:
-                            g.move_party(request['arg'])
-equest = unmarshal(so)
+                    client_request = unmarshal(so)
                     if client_request is None: # connection closed by client
                         so.close()
                         g.remove_player(so)
@@ -125,7 +122,7 @@ equest = unmarshal(so)
                     # Attempt to parse JSON
                     request = json.loads(client_request)
                     print(request)
-                    player = g.gd['players'][so]
+                    # player = g.gd['players'][so]
 
                     # Execute requested method
                     # Broadcast messages are handled internally - see game.py, player.py, entity.py
