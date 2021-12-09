@@ -45,3 +45,5 @@ it could be the case that your terminal window is too small.
 - Due to an oversight in development, it seems that the client does not work on Windows or Linux.
 It was developed on and works fine on MacOS, and so we encourage that the project be tested on MacOS for now.
 If you know how to fix this issue, please let us know.
+- Update: with some changes we can confirm functionality within PuTTY on Windows. Just make sure the environment
+supports the `curses` module.
